@@ -66,7 +66,7 @@ class Player extends Actor {
             var motion = new Vector2D(this.speed.x * step, 0);
             var newPos = this.pos.plus(motion);
             var obstacle = level.obstacleAt(newPos, this.size);
-            if (!obstacle) {
+            if (!obstacle || obstacle && (obstacle.fieldType === "wood" || obstacle.fieldType === "wood-left" || obstacle.fieldType === "wood-right")) {
                 this.pos = newPos;
             }
         };
@@ -79,7 +79,10 @@ class Player extends Actor {
             var motion = new Vector2D(0, this.speed.y * step);
             var newPos = this.pos.plus(motion);
             var obstacle = level.obstacleAt(newPos, this.size);
-            if (obstacle) {
+            if (obstacle && (obstacle.fieldType !== "wood" && obstacle.fieldType !== "wood-left" && obstacle.fieldType !== "wood-right") ||
+                obstacle && (obstacle.fieldType === "wood" || obstacle.fieldType === "wood-left" || obstacle.fieldType === "wood-right") && this.pos.y + this.size.y < obstacle.pos.y ||
+                obstacle && (obstacle.fieldType === "wood" || obstacle.fieldType === "wood-left" || obstacle.fieldType === "wood-right") &&
+                    this.pos.y + this.size.y === obstacle.pos.y && !this.controls[5]) {
                 if (this.speed.y > 0) {
                     this.speed.y = 0;
                     this.pos.y = Math.round(this.pos.y * 10) / 10;
@@ -174,8 +177,10 @@ class Player extends Actor {
             var edge = level.obstacleAt(edgePos, new Vector2D(0, 0.125));
             var floor = level.obstacleAt(this.pos.plus(new Vector2D(0, 1)), new Vector2D(0, 1));
             var air = level.obstacleAt(edgePos.plus(new Vector2D(0, -0.5)), new Vector2D(0, 0.25));
-            if (edge && !air && !floor && this.action !== "grip" && this.action !== "aerialAttack" && this.controls[2] && !this.direction ||
-                edge && !air && !floor && this.action !== "grip" && this.action !== "aerialAttack" && this.controls[3] && this.direction) {
+            if (edge && edge.fieldType !== "wood" && edge.fieldType !== "wood-left" && edge.fieldType !== "wood-right" &&
+                !air && !floor && this.action !== "grip" && this.action !== "aerialAttack" && this.controls[2] && !this.direction ||
+                edge && edge.fieldType !== "wood" && edge.fieldType !== "wood-left" && edge.fieldType !== "wood-right" &&
+                    !air && !floor && this.action !== "grip" && this.action !== "aerialAttack" && this.controls[3] && this.direction) {
                 this.action = "grip";
                 this.speed.y = 0;
                 this.pos.x = Math.round(this.pos.x);

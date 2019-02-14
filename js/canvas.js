@@ -346,6 +346,24 @@ class CanvasDisplay {
                                 tileY = Math.floor(this.animationTime * 8) % 3;
                                 break;
                             }
+                        case "wood-left":
+                            {
+                                tileX = 6;
+                                tileY = 3;
+                                break;
+                            }
+                        case "wood":
+                            {
+                                tileX = 7;
+                                tileY = 3;
+                                break;
+                            }
+                        case "wood-right":
+                            {
+                                tileX = 8;
+                                tileY = 3;
+                                break;
+                            }
                         default:
                             {
                                 tileX = 1;

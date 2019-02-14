@@ -123,7 +123,7 @@ class CanvasDisplay {
 		sky.src = "img/backgrounds/sky.png";
 		this.cx.drawImage(sky,
 			0, 0, 320, 144,
-			-scale * 2 -parallax, scale, 320, 144);
+			-scale * 2 - parallax, scale, 320, 144);
 		var cloudBack: HTMLImageElement = document.createElement("img");
 		cloudBack.src = "img/backgrounds/cloud-back.png";
 		this.cx.drawImage(cloudBack,
@@ -268,6 +268,12 @@ class CanvasDisplay {
 						{ tileX = 7; tileY = Math.floor(this.animationTime * 8) % 3; break; }
 					case "animated3":
 						{ tileX = 8; tileY = Math.floor(this.animationTime * 8) % 3; break; }
+					case "wood-left":
+						{ tileX = 6; tileY = 3; break; }
+					case "wood":
+						{ tileX = 7; tileY = 3; break; }
+					case "wood-right":
+						{ tileX = 8; tileY = 3; break; }
 					default:
 						{ tileX = 1; tileY = 1; break; }
 				}

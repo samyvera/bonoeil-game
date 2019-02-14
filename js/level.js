@@ -49,19 +49,26 @@ class Level {
                 return new Bloc("void", new Vector2D(pos.x, pos.y), new Vector2D(1, 1));
             }
             if (yStart < 0) {
-                return new Bloc("void", new Vector2D(pos.x, pos.y), new Vector2D(1, 1));
+                return null;
             }
             if (yEnd > this.size.y) {
-                return new Bloc("void", new Vector2D(pos.x, pos.y), new Vector2D(1, 1));
+                return null;
             }
+            var blocBuffer = null;
             for (let x = xStart; x < xEnd; x++) {
                 for (let y = yStart; y < yEnd; y++) {
                     var bloc = this.layer1.get(x + ", " + y);
                     if (bloc) {
-                        return bloc;
+                        if (bloc.fieldType === "wood" || bloc.fieldType === "wood-left" || bloc.fieldType === "wood-right") {
+                            blocBuffer = bloc;
+                        }
+                        else {
+                            return bloc;
+                        }
                     }
                 }
             }
+            return blocBuffer;
         };
         this.actorAt = (actor) => {
             let xStart = actor.pos.x;
@@ -154,6 +161,18 @@ class Level {
                     }
                     else if (ch === 'g') {
                         fieldType = "animated3";
+                        size = new Vector2D(1, 1);
+                    }
+                    else if (ch === 'h') {
+                        fieldType = "wood-left";
+                        size = new Vector2D(1, 1);
+                    }
+                    else if (ch === 'i') {
+                        fieldType = "wood";
+                        size = new Vector2D(1, 0.5);
+                    }
+                    else if (ch === 'j') {
+                        fieldType = "wood-right";
                         size = new Vector2D(1, 1);
                     }
                     if (ch !== ' ') {
