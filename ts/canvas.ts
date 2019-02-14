@@ -115,30 +115,30 @@ class CanvasDisplay {
 	}
 
 	public drawBackground = (): void => {
-		var parallax: number = Math.floor(this.level.actors.get("player").pos.x * 16 / this.level.size.x);
+		var parallax: number = -(this.viewport.left * scale / this.level.size.x);
 
 		this.cx.fillStyle = "#000";
 		this.cx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 		var sky: HTMLImageElement = document.createElement("img");
 		sky.src = "img/backgrounds/sky.png";
 		this.cx.drawImage(sky,
-			0, 0, 256, 144,
-			0, scale, 256, 144);
+			0, 0, 320, 144,
+			-scale * 2 -parallax, scale, 320, 144);
 		var cloudBack: HTMLImageElement = document.createElement("img");
 		cloudBack.src = "img/backgrounds/cloud-back.png";
 		this.cx.drawImage(cloudBack,
-			0, 0, 256, 144,
-			0, scale, 256, 144);
+			0, 0, 320, 144,
+			parallax, scale, 320, 144);
 		var chains: HTMLImageElement = document.createElement("img");
 		chains.src = "img/backgrounds/chains.png";
 		this.cx.drawImage(chains,
 			0, 0, 256, 144,
-			-parallax / 3, scale, 256, 144);
+			parallax * 4, scale, 256, 144);
 		var cloudFront: HTMLImageElement = document.createElement("img");
 		cloudFront.src = "img/backgrounds/cloud-front.png";
 		this.cx.drawImage(cloudFront,
-			0, 0, 256, 144,
-			0, scale, 256, 144);
+			0, 0, 320, 144,
+			parallax * 8, scale, 320, 144);
 	}
 
 	public drawLayer0 = (): void => {

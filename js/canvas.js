@@ -77,21 +77,21 @@ class CanvasDisplay {
             }
         };
         this.drawBackground = () => {
-            var parallax = Math.floor(this.level.actors.get("player").pos.x * 16 / this.level.size.x);
+            var parallax = -(this.viewport.left * scale / this.level.size.x);
             this.cx.fillStyle = "#000";
             this.cx.fillRect(0, 0, this.canvas.width, this.canvas.height);
             var sky = document.createElement("img");
             sky.src = "img/backgrounds/sky.png";
-            this.cx.drawImage(sky, 0, 0, 256, 144, 0, scale, 256, 144);
+            this.cx.drawImage(sky, 0, 0, 320, 144, -scale * 2 - parallax, scale, 320, 144);
             var cloudBack = document.createElement("img");
             cloudBack.src = "img/backgrounds/cloud-back.png";
-            this.cx.drawImage(cloudBack, 0, 0, 256, 144, 0, scale, 256, 144);
+            this.cx.drawImage(cloudBack, 0, 0, 320, 144, parallax, scale, 320, 144);
             var chains = document.createElement("img");
             chains.src = "img/backgrounds/chains.png";
-            this.cx.drawImage(chains, 0, 0, 256, 144, -parallax / 3, scale, 256, 144);
+            this.cx.drawImage(chains, 0, 0, 256, 144, parallax * 4, scale, 256, 144);
             var cloudFront = document.createElement("img");
             cloudFront.src = "img/backgrounds/cloud-front.png";
-            this.cx.drawImage(cloudFront, 0, 0, 256, 144, 0, scale, 256, 144);
+            this.cx.drawImage(cloudFront, 0, 0, 320, 144, parallax * 8, scale, 320, 144);
         };
         this.drawLayer0 = () => {
             var view = this.viewport;
