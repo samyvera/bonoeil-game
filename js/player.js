@@ -6,7 +6,8 @@ class Player extends Actor {
         this.input = null;
         this.action = null;
         this.actionFrame = 0;
-        this.lastJab1Frame = 33;
+        this.jab1Buffer = false;
+        this.jab2Buffer = false;
         this.status = null;
         this.xSpeed = scale / 2;
         this.jumpSpeed = scale * 0.75;
@@ -17,6 +18,14 @@ class Player extends Actor {
         this.controls = [false, false, false, false, false, false];
         this.controlsMemory = [false, false, false, false, false, false];
         this.attackMoveX = (step, level) => {
+            if ((this.input === "jabAttack1" || this.input === "jabAttack2" || this.input === "jabAttack3") && !(this.controls[2] && this.controls[3])) {
+                if (this.controls[2]) {
+                    this.direction = false;
+                }
+                if (this.controls[3]) {
+                    this.direction = true;
+                }
+            }
             if (this.action === "jabAttack1") {
                 this.speed.x = 0;
                 if (this.direction) {
@@ -35,6 +44,15 @@ class Player extends Actor {
                     this.speed.x -= this.xSpeed / 4;
                 }
             }
+            else if (this.action === "jabAttack3") {
+                this.speed.x = 0;
+                if (this.direction) {
+                    this.speed.x += this.xSpeed / 4;
+                }
+                else {
+                    this.speed.x -= this.xSpeed / 4;
+                }
+            }
             var motion = new Vector2D(this.speed.x * step, 0);
             var newPos = this.pos.plus(motion);
             var obstacle = level.obstacleAt(newPos, this.size);
@@ -43,24 +61,33 @@ class Player extends Actor {
             }
         };
         this.moveX = (step, level) => {
-            if (!this.controls[2] && !this.controls[3]) {
+            if (!this.controls[2] && !this.controls[3] || this.controls[2] && this.controls[3]) {
                 if (this.speed.x > 0) {
                     this.speed.x -= this.xSpeed / scale;
                 }
                 else if (this.speed.x < 0) {
                     this.speed.x += this.xSpeed / scale;
                 }
+                if (Math.round(this.speed.x) === 0) {
+                    this.speed.x = 0;
+                }
             }
-            if (this.controls[2] && this.action !== "landingAttack") {
+            else if (this.controls[2] && !this.controls[3] && this.action !== "landingAttack") {
                 this.speed.x = this.speed.x - this.xSpeed / scale * 2 > -this.xSpeed ? this.speed.x - this.xSpeed / scale * 2 : -this.xSpeed;
                 if (this.action === null || this.action === "jump" || this.action === "recover") {
                     this.direction = false;
                 }
             }
-            if (this.controls[3] && this.action !== "landingAttack") {
+            else if (this.controls[3] && !this.controls[2] && this.action !== "landingAttack") {
                 this.speed.x = this.speed.x + this.xSpeed / scale * 2 < this.xSpeed ? this.speed.x + this.xSpeed / scale * 2 : this.xSpeed;
                 if (this.action === null || this.action === "jump" || this.action === "recover") {
                     this.direction = true;
+                }
+            }
+            if (this.action === "landingAttack") {
+                this.speed.x -= this.speed.x / 8;
+                if (Math.round(this.speed.x) === 0) {
+                    this.speed.x = 0;
                 }
             }
             this.speed.x = Math.round(this.speed.x * 10) / 10;
@@ -87,7 +114,7 @@ class Player extends Actor {
             if (obstacle && (obstacle.fieldType !== "wood" && obstacle.fieldType !== "wood-left" && obstacle.fieldType !== "wood-right") ||
                 obstacle && (obstacle.fieldType === "wood" || obstacle.fieldType === "wood-left" || obstacle.fieldType === "wood-right") && this.pos.y + this.size.y < obstacle.pos.y ||
                 obstacle && (obstacle.fieldType === "wood" || obstacle.fieldType === "wood-left" || obstacle.fieldType === "wood-right") &&
-                    this.pos.y + this.size.y === obstacle.pos.y && !(this.controls[0] && this.controls[5])) {
+                    this.pos.y + this.size.y === obstacle.pos.y && !(this.controls[0] && this.controls[5] && this.action === null)) {
                 if (this.speed.y > 0) {
                     this.speed.y = 0;
                     this.pos.y = Math.round(this.pos.y * 10) / 10;
@@ -96,6 +123,15 @@ class Player extends Actor {
                     }
                     if (this.action === "aerialAttack" || this.action === "landingAttack") {
                         this.action = "landingAttack";
+                    }
+                    else if (this.action === "jabAttack1") {
+                        this.action = "jabAttack1";
+                    }
+                    else if (this.action === "jabAttack2") {
+                        this.action = "jabAttack2";
+                    }
+                    else if (this.action === "jabAttack3") {
+                        this.action = "jabAttack3";
                     }
                     else {
                         this.action = null;
@@ -124,17 +160,38 @@ class Player extends Actor {
             this.actionFrame++;
             if (this.input === "jabAttack1") {
                 this.actionFrame = 0;
-                this.lastJab1Frame = 0;
             }
-            else if (this.input === "jabAttack2" || this.input === "aerialAttack") {
+            else if (this.input === "jabAttack2") {
+                this.actionFrame = 0;
+                this.jab1Buffer = false;
+            }
+            else if (this.input === "jabAttack3") {
+                this.actionFrame = 0;
+                this.jab2Buffer = false;
+            }
+            else if (this.input === "aerialAttack") {
                 this.actionFrame = 0;
             }
             if (this.action === "jabAttack1") {
+                if (this.input !== "jabAttack1" && this.controls[1] && !this.controlsMemory[1] && this.jab1Buffer) {
+                    this.jab2Buffer = true;
+                }
+                if (this.input !== "jabAttack1" && this.controls[1] && !this.controlsMemory[1]) {
+                    this.jab1Buffer = true;
+                }
                 if (this.actionFrame === 20) {
                     this.action = null;
                 }
             }
             else if (this.action === "jabAttack2") {
+                if (this.input !== "jabAttack2" && this.controls[1] && !this.controlsMemory[1]) {
+                    this.jab2Buffer = true;
+                }
+                if (this.actionFrame === 24) {
+                    this.action = null;
+                }
+            }
+            else if (this.action === "jabAttack3") {
                 if (this.actionFrame === 24) {
                     this.action = null;
                 }
@@ -170,7 +227,6 @@ class Player extends Actor {
                 keys.get("up"),
                 keys.get("down")
             ];
-            this.lastJab1Frame++;
             var actor = level.actorAt(this);
             var edgePos;
             if (this.direction) {
@@ -206,13 +262,17 @@ class Player extends Actor {
             else if (this.action === "grip" && this.controls[5] && ((!this.controls[2] && !this.direction) || (!this.controls[3] && this.direction))) {
                 this.action = "recover";
             }
-            else if (!this.controls[0] && this.controls[1] && this.action === null && !this.controlsMemory[1] && this.speed.y === 0 && this.lastJab1Frame <= 32) {
-                this.input = "jabAttack2";
-                this.action = "jabAttack2";
-            }
             else if (!this.controls[0] && this.controls[1] && this.action === null && !this.controlsMemory[1] && this.speed.y === 0) {
                 this.input = "jabAttack1";
                 this.action = "jabAttack1";
+            }
+            else if (this.jab1Buffer && this.action === null && this.speed.y === 0) {
+                this.input = "jabAttack2";
+                this.action = "jabAttack2";
+            }
+            else if (this.jab2Buffer && this.action === null && this.speed.y === 0) {
+                this.input = "jabAttack3";
+                this.action = "jabAttack3";
             }
             else if (this.controls[1] && (this.action === null || this.action === "jump") && !this.controlsMemory[1] && this.speed.y !== 0) {
                 this.input = "aerialAttack";
@@ -222,38 +282,22 @@ class Player extends Actor {
                 this.action = "landingAttack";
             }
             if (this.status === null) {
-                if (this.action === null) {
+                if (this.action === null || this.action === "jump" || this.action === "recover") {
                     this.moveX(step, level);
                     this.moveY(step, level);
                 }
                 else if (this.action === "talk") {
                     this.talk(step, level);
                 }
-                else if (this.action === "jump") {
-                    this.moveX(step, level);
-                    this.moveY(step, level);
-                }
-                else if (this.action === "recover") {
-                    this.moveX(step, level);
-                    this.moveY(step, level);
-                }
                 else if (this.action === "evade") {
                     this.evade(step, level);
                 }
-                else if (this.action === "jabAttack1") {
+                else if (this.action === "jabAttack1" || this.action === "jabAttack2" || this.action === "jabAttack3") {
                     this.attackMoveX(step, level);
-                    this.attack(step, level);
-                }
-                else if (this.action === "jabAttack2") {
-                    this.attackMoveX(step, level);
-                    this.attack(step, level);
-                }
-                else if (this.action === "aerialAttack") {
-                    this.moveX(step, level);
                     this.moveY(step, level);
                     this.attack(step, level);
                 }
-                else if (this.action === "landingAttack") {
+                else if (this.action === "aerialAttack" || this.action === "landingAttack") {
                     this.moveX(step, level);
                     this.moveY(step, level);
                     this.attack(step, level);

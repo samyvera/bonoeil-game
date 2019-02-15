@@ -581,6 +581,10 @@ class CanvasDisplay {
                     spriteX = Math.floor(player.actionFrame / 6) % 4;
                     spriteY = 5;
                 }
+                else if (player.action === "jabAttack3") {
+                    spriteX = Math.floor(player.actionFrame / 6) % 4;
+                    spriteY = 4;
+                }
                 else if (player.action === "aerialAttack") {
                     spriteX = Math.floor(player.actionFrame / 6) % 4;
                     spriteY = 4;
