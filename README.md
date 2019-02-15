@@ -1,11 +1,5 @@
 # Bonoeil
 
-&ensp;&ensp;Personal game project
+![img](img/controls.png)
 
-#### Controls
-* W - Jump
-* X - Attack
-* Arrows - Move
-
-## About
-&ensp;&ensp;2018/2019 - Samy Vera
+2018/2019 - Samy Vera

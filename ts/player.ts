@@ -100,7 +100,7 @@ class Player extends Actor {
 		if (obstacle && (obstacle.fieldType !== "wood" && obstacle.fieldType !== "wood-left" && obstacle.fieldType !== "wood-right") ||
 			obstacle && (obstacle.fieldType === "wood" || obstacle.fieldType === "wood-left" || obstacle.fieldType === "wood-right") && this.pos.y + this.size.y < obstacle.pos.y ||
 			obstacle && (obstacle.fieldType === "wood" || obstacle.fieldType === "wood-left" || obstacle.fieldType === "wood-right") &&
-			this.pos.y + this.size.y === obstacle.pos.y && !this.controls[5]) {
+			this.pos.y + this.size.y === obstacle.pos.y && !(this.controls[0] && this.controls[5])) {
 			if (this.speed.y > 0) {
 				this.speed.y = 0;
 				this.pos.y = Math.round(this.pos.y * 10) / 10;
@@ -214,11 +214,11 @@ class Player extends Actor {
 			this.input = "talk";
 			this.action = "talk";
 		}
-		else if (this.controls[0] && this.controls[5] && !this.controlsMemory[0] && this.action === null && this.speed.y === 0) {
+		else if (this.controls[1] && this.controls[5] && !this.controlsMemory[1] && this.action === null && this.speed.y === 0) {
 			this.input = "evade";
 			this.action = "evade";
 		}
-		else if (this.controls[0] && !this.controlsMemory[0] && this.speed.y === 0 && (this.action === null || this.action === "grip")) {
+		else if (this.controls[0] && !this.controls[5] && !this.controlsMemory[0] && this.speed.y === 0 && (this.action === null || this.action === "grip")) {
 			this.input = "jump";
 			this.action = "jump";
 		}
