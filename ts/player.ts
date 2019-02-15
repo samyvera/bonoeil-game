@@ -10,8 +10,9 @@ class Player extends Actor {
 	public status: string = null;
 
 	public xSpeed: number = scale / 2;
-	public jumpSpeed: number = scale * 1;
-	public gravity: number = scale * 3;
+	public jumpSpeed: number = scale * 0.75;
+	public jumpFrame: number = 0;
+	public gravity: number = scale * 4;
 	public dashSpeed: number = scale * 1.5;
 	public dashResistance: number = scale * 4;
 
@@ -90,8 +91,12 @@ class Player extends Actor {
 	public moveY = (step: number, level: Level): void => {
 		if (this.input === "jump") {
 			this.action = "jump";
-			this.speed.y = -this.jumpSpeed;
+			this.jumpFrame = 0;
 		}
+		if (this.action === "jump" && this.controls[0] && this.jumpFrame < 6) {
+			this.speed.y = -this.jumpSpeed * (this.jumpFrame/4 + 0.25);
+		}
+		this.jumpFrame++;
 		this.speed.y += step * this.gravity;
 
 		var motion: Vector2D = new Vector2D(0, this.speed.y * step);
@@ -201,9 +206,9 @@ class Player extends Actor {
 		var floor: Bloc = level.obstacleAt(this.pos.plus(new Vector2D(0, 1)), new Vector2D(0, 1));
 		var air: Bloc = level.obstacleAt(edgePos.plus(new Vector2D(0, -0.5)), new Vector2D(0, 0.25));
 
-		if (edge && edge.fieldType !== "wood" && edge.fieldType !== "wood-left" && edge.fieldType !== "wood-right" &&
+		if (this.jumpFrame > 2 && edge && edge.fieldType !== "wood" && edge.fieldType !== "wood-left" && edge.fieldType !== "wood-right" &&
 			!air && !floor && this.action !== "grip" && this.action !== "aerialAttack" && this.controls[2] && !this.direction ||
-			edge && edge.fieldType !== "wood" && edge.fieldType !== "wood-left" && edge.fieldType !== "wood-right" &&
+			this.jumpFrame > 2 && edge && edge.fieldType !== "wood" && edge.fieldType !== "wood-left" && edge.fieldType !== "wood-right" &&
 			!air && !floor && this.action !== "grip" && this.action !== "aerialAttack" && this.controls[3] && this.direction) {
 			this.action = "grip";
 			this.speed.y = 0;
