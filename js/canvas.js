@@ -14,6 +14,11 @@ class CanvasDisplay {
             this.drawFront();
             this.drawLayer2();
             this.drawHUD();
+            if (debug) {
+                this.level.actors.forEach(actor => {
+                    this.debugMode(actor);
+                });
+            }
         };
         this.flipHorizontally = (context, around) => {
             context.translate(around, 0);
@@ -548,6 +553,26 @@ class CanvasDisplay {
                 }
             });
         };
+        this.debugMode = (actor) => {
+            this.cx.fillStyle = "rgba(255, 0, 255, 0.5)";
+            var posX = (actor.pos.x - this.viewport.left) * scale;
+            var posY = (actor.pos.y - this.viewport.top) * scale;
+            this.cx.fillRect(posX, posY, actor.size.x * scale, actor.size.y * scale);
+            if (actor instanceof Player) {
+                this.cx.fillStyle = "#000";
+                this.cx.fillText("x:" + actor.pos.x, posX + 1, posY - scale);
+                this.cx.fillText("x:" + actor.pos.x, posX - 1, posY - scale);
+                this.cx.fillText("x:" + actor.pos.x, posX, posY - scale + 1);
+                this.cx.fillText("x:" + actor.pos.x, posX, posY - scale - 1);
+                this.cx.fillText("y:" + actor.pos.y, posX + 1, posY - scale / 2);
+                this.cx.fillText("y:" + actor.pos.y, posX - 1, posY - scale / 2);
+                this.cx.fillText("y:" + actor.pos.y, posX, posY - scale / 2 + 1);
+                this.cx.fillText("y:" + actor.pos.y, posX, posY - scale / 2 - 1);
+                this.cx.fillStyle = "#fff";
+                this.cx.fillText("x:" + actor.pos.x, posX, posY - scale);
+                this.cx.fillText("y:" + actor.pos.y, posX, posY - scale / 2);
+            }
+        };
         this.drawPlayer = (player, sprites, spriteX, spriteY, posX, posY, width, height) => {
             if (player.status === null) {
                 spriteY = 0;
@@ -569,7 +594,7 @@ class CanvasDisplay {
                     spriteY = 2;
                     spriteX = 3;
                 }
-                else if (player.action === "evade") {
+                else if (player.action === "crouch") {
                     spriteY = 2;
                     spriteX = 2;
                 }

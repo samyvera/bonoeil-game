@@ -40,6 +40,7 @@ var runGame = () => {
     runAnimation(game);
 };
 var game = new Game();
+var debug = false;
 window.onload = () => {
     runGame();
 };

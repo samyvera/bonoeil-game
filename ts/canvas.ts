@@ -35,6 +35,12 @@ class CanvasDisplay {
 		this.drawFront();
 		this.drawLayer2();
 		this.drawHUD();
+
+		if (debug) {
+			this.level.actors.forEach(actor => {
+				this.debugMode(actor);
+			});
+		}
 	}
 
 	public flipHorizontally = (context: CanvasRenderingContext2D, around: number): void => {
@@ -406,6 +412,29 @@ class CanvasDisplay {
 		});
 	}
 
+	public debugMode = (actor: Actor): void => {
+		this.cx.fillStyle = "rgba(255, 0, 255, 0.5)";
+		var posX: number = (actor.pos.x - this.viewport.left) * scale;
+		var posY: number = (actor.pos.y - this.viewport.top) * scale;
+		this.cx.fillRect(
+			posX, posY,
+			actor.size.x * scale, actor.size.y * scale);
+		if (actor instanceof Player) {
+			this.cx.fillStyle = "#000";
+			this.cx.fillText("x:" + actor.pos.x, posX + 1, posY - scale);
+			this.cx.fillText("x:" + actor.pos.x, posX - 1, posY - scale);
+			this.cx.fillText("x:" + actor.pos.x, posX, posY - scale + 1);
+			this.cx.fillText("x:" + actor.pos.x, posX, posY - scale - 1);
+			this.cx.fillText("y:" + actor.pos.y, posX + 1, posY - scale/2);
+			this.cx.fillText("y:" + actor.pos.y, posX - 1, posY - scale/2);
+			this.cx.fillText("y:" + actor.pos.y, posX, posY - scale/2 + 1);
+			this.cx.fillText("y:" + actor.pos.y, posX, posY - scale/2 - 1);
+			this.cx.fillStyle = "#fff";
+			this.cx.fillText("x:" + actor.pos.x, posX, posY - scale);
+			this.cx.fillText("y:" + actor.pos.y, posX, posY - scale/2);
+		}
+	}
+
 	public drawPlayer = (player: Player, sprites: HTMLImageElement, spriteX: number, spriteY: number, posX: number, posY: number, width: number, height: number): void => {
 		if (player.status === null) {
 			spriteY = 0;
@@ -428,7 +457,7 @@ class CanvasDisplay {
 				spriteY = 2;
 				spriteX = 3;
 			}
-			else if (player.action === "evade") {
+			else if (player.action === "crouch") {
 				spriteY = 2;
 				spriteX = 2;
 			}

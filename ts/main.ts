@@ -46,6 +46,7 @@ var runGame = (): void => {
 
 var game: Game = new Game();
 
+var debug: boolean = false;
 window.onload = (): void => {
     runGame();
 };

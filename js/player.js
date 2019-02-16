@@ -56,9 +56,12 @@ class Player extends Actor {
             var motion = new Vector2D(this.speed.x * step, 0);
             var newPos = this.pos.plus(motion);
             var obstacle = level.obstacleAt(newPos, this.size);
-            if (!obstacle) {
+            var floor1 = level.obstacleAt(this.pos.plus(new Vector2D(this.size.x, this.size.y)), new Vector2D(1, 1));
+            var floor2 = level.obstacleAt(this.pos.plus(new Vector2D(-1, this.size.y)), new Vector2D(1, 1));
+            if (!obstacle && (this.direction && floor1 || !this.direction && floor2)) {
                 this.pos = newPos;
             }
+            this.pos.x = Math.round(this.pos.x * 100) / 100;
         };
         this.moveX = (step, level) => {
             if (!this.controls[2] && !this.controls[3] || this.controls[2] && this.controls[3]) {
@@ -72,31 +75,39 @@ class Player extends Actor {
                     this.speed.x = 0;
                 }
             }
-            else if (this.controls[2] && !this.controls[3] && this.action !== "landingAttack") {
+            else if (this.controls[2] && !this.controls[3] && this.action !== "landingAttack" && this.action !== "crouch") {
                 this.speed.x = this.speed.x - this.xSpeed / scale * 2 > -this.xSpeed ? this.speed.x - this.xSpeed / scale * 2 : -this.xSpeed;
                 if (this.action === null || this.action === "jump" || this.action === "recover") {
                     this.direction = false;
                 }
             }
-            else if (this.controls[3] && !this.controls[2] && this.action !== "landingAttack") {
+            else if (this.controls[3] && !this.controls[2] && this.action !== "landingAttack" && this.action !== "crouch") {
                 this.speed.x = this.speed.x + this.xSpeed / scale * 2 < this.xSpeed ? this.speed.x + this.xSpeed / scale * 2 : this.xSpeed;
                 if (this.action === null || this.action === "jump" || this.action === "recover") {
                     this.direction = true;
                 }
             }
-            if (this.action === "landingAttack") {
+            if (this.action === "landingAttack" || this.action === "crouch") {
                 this.speed.x -= this.speed.x / 8;
                 if (Math.round(this.speed.x) === 0) {
                     this.speed.x = 0;
                 }
             }
-            this.speed.x = Math.round(this.speed.x * 10) / 10;
+            if (this.action === "crouch" && !(this.controls[2] && this.controls[3])) {
+                if (this.controls[2]) {
+                    this.direction = false;
+                }
+                if (this.controls[3]) {
+                    this.direction = true;
+                }
+            }
             var motion = new Vector2D(this.speed.x * step, 0);
             var newPos = this.pos.plus(motion);
             var obstacle = level.obstacleAt(newPos, this.size);
             if (!obstacle || obstacle && (obstacle.fieldType === "wood" || obstacle.fieldType === "wood-left" || obstacle.fieldType === "wood-right")) {
                 this.pos = newPos;
             }
+            this.pos.x = Math.round(this.pos.x * 100) / 100;
         };
         this.moveY = (step, level) => {
             if (this.input === "jump") {
@@ -114,7 +125,7 @@ class Player extends Actor {
             if (obstacle && (obstacle.fieldType !== "wood" && obstacle.fieldType !== "wood-left" && obstacle.fieldType !== "wood-right") ||
                 obstacle && (obstacle.fieldType === "wood" || obstacle.fieldType === "wood-left" || obstacle.fieldType === "wood-right") && this.pos.y + this.size.y < obstacle.pos.y ||
                 obstacle && (obstacle.fieldType === "wood" || obstacle.fieldType === "wood-left" || obstacle.fieldType === "wood-right") &&
-                    this.pos.y + this.size.y === obstacle.pos.y && !(this.controls[0] && this.controls[5] && this.action === null)) {
+                    this.pos.y + this.size.y === obstacle.pos.y && !(this.controls[0] && this.controls[5] && (this.action === null || this.action === "crouch"))) {
                 if (this.speed.y > 0) {
                     this.speed.y = 0;
                     this.pos.y = Math.round(this.pos.y * 10) / 10;
@@ -133,6 +144,9 @@ class Player extends Actor {
                     else if (this.action === "jabAttack3") {
                         this.action = "jabAttack3";
                     }
+                    else if (this.action === "crouch") {
+                        this.action = "crouch";
+                    }
                     else {
                         this.action = null;
                     }
@@ -144,17 +158,7 @@ class Player extends Actor {
             else {
                 this.pos = newPos;
             }
-        };
-        this.evade = (step, level) => {
-            this.actionFrame++;
-            if (this.input === "evade") {
-                this.actionFrame = 0;
-            }
-            if (this.action === "evade") {
-                if (this.actionFrame === 32) {
-                    this.action = null;
-                }
-            }
+            this.pos.y = Math.round(this.pos.y * 100) / 100;
         };
         this.attack = (step, level) => {
             this.actionFrame++;
@@ -202,6 +206,11 @@ class Player extends Actor {
                 }
             }
         };
+        this.crouch = (step, level) => {
+            if (!this.controls[5] || this.speed.y !== 0) {
+                this.action = null;
+            }
+        };
         this.talk = (step, level) => {
             var actor = level.actorAt(this);
             if (actor && actor instanceof Npc) {
@@ -236,12 +245,13 @@ class Player extends Actor {
                 edgePos = this.pos.plus(new Vector2D(-0.25, 0.25));
             }
             var edge = level.obstacleAt(edgePos, new Vector2D(0, 0.125));
-            var floor = level.obstacleAt(this.pos.plus(new Vector2D(0, 1)), new Vector2D(0, 1));
+            var floor = level.obstacleAt(this.pos.plus(new Vector2D(0, this.size.y)), new Vector2D(1, 1));
             var air = level.obstacleAt(edgePos.plus(new Vector2D(0, -0.5)), new Vector2D(0, 0.25));
+            var air2 = level.obstacleAt(this.pos, new Vector2D(1, 0.5));
             if (this.jumpFrame > 2 && edge && edge.fieldType !== "wood" && edge.fieldType !== "wood-left" && edge.fieldType !== "wood-right" &&
-                !air && !floor && this.action !== "grip" && this.action !== "aerialAttack" && this.controls[2] && !this.direction ||
+                !air && !air2 && !floor && this.action !== "grip" && this.action !== "aerialAttack" && this.controls[2] && !this.direction ||
                 this.jumpFrame > 2 && edge && edge.fieldType !== "wood" && edge.fieldType !== "wood-left" && edge.fieldType !== "wood-right" &&
-                    !air && !floor && this.action !== "grip" && this.action !== "aerialAttack" && this.controls[3] && this.direction) {
+                    !air && !air2 && !floor && this.action !== "grip" && this.action !== "aerialAttack" && this.controls[3] && this.direction) {
                 this.action = "grip";
                 this.speed.y = 0;
                 this.pos.x = Math.round(this.pos.x);
@@ -251,28 +261,31 @@ class Player extends Actor {
                 this.input = "talk";
                 this.action = "talk";
             }
-            else if (this.controls[1] && this.controls[5] && !this.controlsMemory[1] && this.action === null && this.speed.y === 0) {
-                this.input = "evade";
-                this.action = "evade";
+            else if (!this.controls[0] && this.controls[1] && (this.action === null || this.action === "crouch") && !this.controlsMemory[1] && this.speed.y === 0) {
+                this.input = "jabAttack1";
+                this.action = "jabAttack1";
             }
-            else if (this.controls[0] && !this.controls[5] && !this.controlsMemory[0] && this.speed.y === 0 && (this.action === null || this.action === "grip")) {
+            else if (this.jab1Buffer && (this.action === null || this.action === "crouch") && this.speed.y === 0) {
+                this.input = "jabAttack2";
+                this.action = "jabAttack2";
+            }
+            else if (this.jab2Buffer && (this.action === null || this.action === "crouch") && this.speed.y === 0) {
+                this.input = "jabAttack3";
+                this.action = "jabAttack3";
+            }
+            else if (this.controls[5] && this.action !== "jabAttack1" && this.action !== "jabAttack2" && this.action !== "jabAttack3" && (this.action === null ||
+                (!floor || this.action === "crouch" && floor && floor.fieldType === "wood" || floor.fieldType === "wood-left" || floor.fieldType === "wood-right")) && this.speed.y === 0) {
+                this.input = "crouch";
+                this.action = "crouch";
+            }
+            else if (this.controls[0] && !this.controlsMemory[0] && this.speed.y === 0 && (this.action === null || this.action === "grip" || this.action === "crouch") &&
+                ((!floor && this.action === "grip") || (floor && floor.fieldType !== "wood" && floor.fieldType !== "wood-left" && floor.fieldType !== "wood-right") ||
+                    (floor && !this.controls[5] && floor.fieldType === "wood" || floor.fieldType === "wood-left" || floor.fieldType === "wood-right"))) {
                 this.input = "jump";
                 this.action = "jump";
             }
             else if (this.action === "grip" && this.controls[5] && ((!this.controls[2] && !this.direction) || (!this.controls[3] && this.direction))) {
                 this.action = "recover";
-            }
-            else if (!this.controls[0] && this.controls[1] && this.action === null && !this.controlsMemory[1] && this.speed.y === 0) {
-                this.input = "jabAttack1";
-                this.action = "jabAttack1";
-            }
-            else if (this.jab1Buffer && this.action === null && this.speed.y === 0) {
-                this.input = "jabAttack2";
-                this.action = "jabAttack2";
-            }
-            else if (this.jab2Buffer && this.action === null && this.speed.y === 0) {
-                this.input = "jabAttack3";
-                this.action = "jabAttack3";
             }
             else if (this.controls[1] && (this.action === null || this.action === "jump") && !this.controlsMemory[1] && this.speed.y !== 0) {
                 this.input = "aerialAttack";
@@ -289,8 +302,10 @@ class Player extends Actor {
                 else if (this.action === "talk") {
                     this.talk(step, level);
                 }
-                else if (this.action === "evade") {
-                    this.evade(step, level);
+                else if (this.action === "crouch") {
+                    this.crouch(step, level);
+                    this.moveX(step, level);
+                    this.moveY(step, level);
                 }
                 else if (this.action === "jabAttack1" || this.action === "jabAttack2" || this.action === "jabAttack3") {
                     this.attackMoveX(step, level);
