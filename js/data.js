@@ -113,14 +113,12 @@ var room02 = [
 ];
 var room01Actors = new Map()
     .set("child", new Npc("Young girl", new Vector2D(16, 14), new Vector2D(1, 1), "child", "U- Urg... save me... please..."))
-    .set("villager", new Npc("Villager", new Vector2D(11, 13), new Vector2D(1, 2), "villager", "Hello there !"));
+    .set("villager", new Npc("Villager", new Vector2D(11, 12), new Vector2D(1, 2), "villager", "Hello there !"));
 var room02Actors = new Map();
 /* MULTIPLE ROOMS ACTORS */
 room01Actors
-    .set("tp01", new Teleporter("tp01", new Vector2D(0, 13), new Vector2D(0.125, 1), "null", new Level(room02, room02Actors), new Vector2D(30.75, 14), false))
-    .set("tp02", new Teleporter("tp02", new Vector2D(0, 2), new Vector2D(0.125, 1), "null", new Level(room02, room02Actors), new Vector2D(30.75, 3), false))
-    .set("tp03", new Teleporter("tp03", new Vector2D(0, 1), new Vector2D(0.125, 1), "null", new Level(room02, room02Actors), new Vector2D(30.75, 2), false));
+    .set("tp01", new Teleporter("tp01", new Vector2D(0, 12), new Vector2D(0.25, 3), "null", new Level(room02, room02Actors), new Vector2D(30.625, 14), false))
+    .set("tp02", new Teleporter("tp02", new Vector2D(0, 0), new Vector2D(0.25, 4), "null", new Level(room02, room02Actors), new Vector2D(30.625, 3), false));
 room02Actors
-    .set("tp01", new Teleporter("tp01", new Vector2D(31.875, 13), new Vector2D(0.125, 1), "null", new Level(room01, room01Actors), new Vector2D(0.25, 14), true))
-    .set("tp02", new Teleporter("tp02", new Vector2D(31.875, 2), new Vector2D(0.125, 1), "null", new Level(room01, room01Actors), new Vector2D(0.25, 3), true))
-    .set("tp03", new Teleporter("tp03", new Vector2D(31.875, 1), new Vector2D(0.125, 1), "null", new Level(room01, room01Actors), new Vector2D(0.25, 2), true));
+    .set("tp01", new Teleporter("tp01", new Vector2D(31.75, 12), new Vector2D(0.25, 3), "null", new Level(room01, room01Actors), new Vector2D(0.375, 14), true))
+    .set("tp02", new Teleporter("tp02", new Vector2D(31.75, 0), new Vector2D(0.25, 4), "null", new Level(room01, room01Actors), new Vector2D(0.375, 3), true));

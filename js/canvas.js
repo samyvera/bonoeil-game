@@ -20,6 +20,26 @@ class CanvasDisplay {
                 });
             }
         };
+        this.debugMode = (actor) => {
+            this.cx.fillStyle = "rgba(0, 0, 255, 0.5)";
+            var posX = (actor.pos.x - this.viewport.left) * scale;
+            var posY = (actor.pos.y - this.viewport.top) * scale;
+            this.cx.fillRect(posX, posY, actor.size.x * scale, actor.size.y * scale);
+            if (actor instanceof Player) {
+                this.cx.fillStyle = "#000";
+                this.cx.fillText("x:" + actor.pos.x, posX + 1, posY - scale);
+                this.cx.fillText("x:" + actor.pos.x, posX - 1, posY - scale);
+                this.cx.fillText("x:" + actor.pos.x, posX, posY - scale + 1);
+                this.cx.fillText("x:" + actor.pos.x, posX, posY - scale - 1);
+                this.cx.fillText("y:" + actor.pos.y, posX + 1, posY - scale / 2);
+                this.cx.fillText("y:" + actor.pos.y, posX - 1, posY - scale / 2);
+                this.cx.fillText("y:" + actor.pos.y, posX, posY - scale / 2 + 1);
+                this.cx.fillText("y:" + actor.pos.y, posX, posY - scale / 2 - 1);
+                this.cx.fillStyle = "#fff";
+                this.cx.fillText("x:" + actor.pos.x, posX, posY - scale);
+                this.cx.fillText("y:" + actor.pos.y, posX, posY - scale / 2);
+            }
+        };
         this.flipHorizontally = (context, around) => {
             context.translate(around, 0);
             context.scale(-1, 1);
@@ -521,7 +541,7 @@ class CanvasDisplay {
                     let arrow = document.createElement("img");
                     var cursorX = Math.floor(this.animationTime * 3) % 4;
                     arrow.src = "img/actors/cursor.png";
-                    this.cx.drawImage(arrow, cursorX * scale, 0, scale, scale, posX, posY - height - scale * 0.75, scale, scale);
+                    this.cx.drawImage(arrow, cursorX * scale, 0, scale, scale, posX, posY - scale * 2, scale, scale);
                 }
             });
         };
@@ -545,33 +565,13 @@ class CanvasDisplay {
                     if (!actor.direction) {
                         this.flipHorizontally(this.cx, posX + scale / 2);
                     }
-                    this.cx.drawImage(sprites, spriteX * width * 2, spriteY * height * 1.5, width * 2, height * 1.5, posX - scale / 2, posY - scale * 2, width * 2, height * 1.5);
+                    this.cx.drawImage(sprites, spriteX * width * 2, spriteY, width * 2, height * 1.5, posX - scale / 2, posY - scale, width * 2, height * 1.5);
                     this.cx.restore();
                 }
                 else if (actor instanceof Player) {
                     this.drawPlayer(actor, sprites, spriteX, spriteY, posX, posY, width, height);
                 }
             });
-        };
-        this.debugMode = (actor) => {
-            this.cx.fillStyle = "rgba(255, 0, 255, 0.5)";
-            var posX = (actor.pos.x - this.viewport.left) * scale;
-            var posY = (actor.pos.y - this.viewport.top) * scale;
-            this.cx.fillRect(posX, posY, actor.size.x * scale, actor.size.y * scale);
-            if (actor instanceof Player) {
-                this.cx.fillStyle = "#000";
-                this.cx.fillText("x:" + actor.pos.x, posX + 1, posY - scale);
-                this.cx.fillText("x:" + actor.pos.x, posX - 1, posY - scale);
-                this.cx.fillText("x:" + actor.pos.x, posX, posY - scale + 1);
-                this.cx.fillText("x:" + actor.pos.x, posX, posY - scale - 1);
-                this.cx.fillText("y:" + actor.pos.y, posX + 1, posY - scale / 2);
-                this.cx.fillText("y:" + actor.pos.y, posX - 1, posY - scale / 2);
-                this.cx.fillText("y:" + actor.pos.y, posX, posY - scale / 2 + 1);
-                this.cx.fillText("y:" + actor.pos.y, posX, posY - scale / 2 - 1);
-                this.cx.fillStyle = "#fff";
-                this.cx.fillText("x:" + actor.pos.x, posX, posY - scale);
-                this.cx.fillText("y:" + actor.pos.y, posX, posY - scale / 2);
-            }
         };
         this.drawPlayer = (player, sprites, spriteX, spriteY, posX, posY, width, height) => {
             if (player.status === null) {
@@ -595,7 +595,7 @@ class CanvasDisplay {
                     spriteX = 3;
                 }
                 else if (player.action === "crouch") {
-                    spriteY = 2;
+                    spriteY = 3;
                     spriteX = 2;
                 }
                 else if (player.action === "jabAttack1") {

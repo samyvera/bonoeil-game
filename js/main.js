@@ -35,12 +35,12 @@ var runAnimation = (game) => {
     requestAnimationFrame(frame);
 };
 var runGame = () => {
-    game.level = new Level(room02, room02Actors.set("player", new Player("Tyr", new Vector2D(4, 13), new Vector2D(1, 2), "player", true)));
+    game.level = new Level(room01, room01Actors.set("player", new Player("Tyr", new Vector2D(2, 3), new Vector2D(1, 2), "player", true)));
     game.display = new CanvasDisplay(document.body, game.level);
     runAnimation(game);
 };
 var game = new Game();
-var debug = false;
+var debug = true;
 window.onload = () => {
     runGame();
 };

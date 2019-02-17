@@ -56,9 +56,7 @@ class Player extends Actor {
             var motion = new Vector2D(this.speed.x * step, 0);
             var newPos = this.pos.plus(motion);
             var obstacle = level.obstacleAt(newPos, this.size);
-            var floor1 = level.obstacleAt(this.pos.plus(new Vector2D(this.size.x, this.size.y)), new Vector2D(1, 1));
-            var floor2 = level.obstacleAt(this.pos.plus(new Vector2D(-1, this.size.y)), new Vector2D(1, 1));
-            if (!obstacle && (this.direction && floor1 || !this.direction && floor2)) {
+            if (!obstacle) {
                 this.pos = newPos;
             }
             this.pos.x = Math.round(this.pos.x * 100) / 100;
@@ -122,10 +120,9 @@ class Player extends Actor {
             var motion = new Vector2D(0, this.speed.y * step);
             var newPos = this.pos.plus(motion);
             var obstacle = level.obstacleAt(newPos, this.size);
-            if (obstacle && (obstacle.fieldType !== "wood" && obstacle.fieldType !== "wood-left" && obstacle.fieldType !== "wood-right") ||
-                obstacle && (obstacle.fieldType === "wood" || obstacle.fieldType === "wood-left" || obstacle.fieldType === "wood-right") && this.pos.y + this.size.y < obstacle.pos.y ||
-                obstacle && (obstacle.fieldType === "wood" || obstacle.fieldType === "wood-left" || obstacle.fieldType === "wood-right") &&
-                    this.pos.y + this.size.y === obstacle.pos.y && !(this.controls[0] && this.controls[5] && (this.action === null || this.action === "crouch"))) {
+            var wood = obstacle && (obstacle.fieldType === "wood" || obstacle.fieldType === "wood-left" || obstacle.fieldType === "wood-right");
+            if (obstacle && !wood || obstacle && wood && this.pos.y + this.size.y < obstacle.pos.y ||
+                obstacle && wood && this.pos.y + this.size.y === obstacle.pos.y && !(this.controls[0] && this.controls[5])) {
                 if (this.speed.y > 0) {
                     this.speed.y = 0;
                     this.pos.y = Math.round(this.pos.y * 10) / 10;
@@ -157,6 +154,11 @@ class Player extends Actor {
             }
             else {
                 this.pos = newPos;
+                if (this.action === "crouch") {
+                    this.action = null;
+                    this.size.y = 2;
+                    this.pos.y -= 0.5;
+                }
             }
             this.pos.y = Math.round(this.pos.y * 100) / 100;
         };
@@ -207,8 +209,14 @@ class Player extends Actor {
             }
         };
         this.crouch = (step, level) => {
-            if (!this.controls[5] || this.speed.y !== 0) {
+            if (this.input === "crouch") {
+                this.size.y = 1.5;
+                this.pos.y += 0.5;
+            }
+            if (!this.controls[5]) {
                 this.action = null;
+                this.size.y = 2;
+                this.pos.y -= 0.5;
             }
         };
         this.talk = (step, level) => {
@@ -237,6 +245,10 @@ class Player extends Actor {
                 keys.get("down")
             ];
             var actor = level.actorAt(this);
+            if (this.size.y === 1.5 && this.action !== "crouch") {
+                this.size.y = 2;
+                this.pos.y -= 0.5;
+            }
             var edgePos;
             if (this.direction) {
                 edgePos = this.pos.plus(new Vector2D(this.size.x + 0.25, 0.25));
@@ -273,14 +285,13 @@ class Player extends Actor {
                 this.input = "jabAttack3";
                 this.action = "jabAttack3";
             }
-            else if (this.controls[5] && this.action !== "grip" && this.action !== "jabAttack1" && this.action !== "jabAttack2" && this.action !== "jabAttack3" && (this.action === null ||
-                (!floor || this.action === "crouch" && floor && floor.fieldType === "wood" || floor.fieldType === "wood-left" || floor.fieldType === "wood-right")) && this.speed.y === 0) {
+            else if (this.controls[5] && this.action === null && this.speed.y === 0) {
                 this.input = "crouch";
                 this.action = "crouch";
             }
             else if (this.controls[0] && !this.controlsMemory[0] && this.speed.y === 0 && (this.action === null || this.action === "grip" || this.action === "crouch") &&
                 ((!floor && this.action === "grip") || (floor && floor.fieldType !== "wood" && floor.fieldType !== "wood-left" && floor.fieldType !== "wood-right") ||
-                    (floor && !this.controls[5] && floor.fieldType === "wood" || floor.fieldType === "wood-left" || floor.fieldType === "wood-right")) ||
+                    (!this.controls[5] && floor && (floor.fieldType === "wood" || floor.fieldType === "wood-left" || floor.fieldType === "wood-right"))) ||
                 this.action === "grip" && this.controls[5]) {
                 this.input = "jump";
                 this.action = "jump";
