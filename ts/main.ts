@@ -39,7 +39,7 @@ var runAnimation = (game: Game): void => {
 }
 
 var runGame = (): void => {
-    game.level = new Level(room01, room01Actors.set("player", new Player("Tyr", new Vector2D(2, 3), new Vector2D(1, 2), "player", true)));
+    game.level = new Level(room01, room01Actors.set("player", new Player("Nue", new Vector2D(2, 2), new Vector2D(1, 2), "player", true)));
     game.display = new CanvasDisplay(document.body, game.level);
     runAnimation(game);
 }

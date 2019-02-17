@@ -1,14 +1,15 @@
 class Player extends Actor {
     constructor(name, pos, size, sprites, direction) {
-        super(name, pos, size, sprites);
+        super(name, pos, size, sprites, direction);
         this.speed = new Vector2D(0, 0);
-        this.direction = true;
         this.input = null;
         this.action = null;
         this.actionFrame = 0;
         this.jab1Buffer = false;
         this.jab2Buffer = false;
         this.status = null;
+        this.maxHealth = 20;
+        this.health = 20;
         this.xSpeed = scale / 2;
         this.jumpSpeed = scale * 0.75;
         this.jumpFrame = 0;
@@ -332,7 +333,5 @@ class Player extends Actor {
                 this.controlsMemory[i] = this.controls[i];
             }
         };
-        this.pos = this.pos.plus(new Vector2D(0, -1));
-        this.direction = direction;
     }
 }

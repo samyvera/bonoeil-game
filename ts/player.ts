@@ -1,14 +1,16 @@
 class Player extends Actor {
 
 	public speed: Vector2D = new Vector2D(0, 0);
-	public direction: boolean = true;
 
 	public input: string = null;
 	public action: string = null;
 	public actionFrame: number = 0;
 	public jab1Buffer: boolean = false;
 	public jab2Buffer: boolean = false;
+
 	public status: string = null;
+	public maxHealth: number = 20;
+	public health: number = 20;
 
 	public xSpeed: number = scale / 2;
 	public jumpSpeed: number = scale * 0.75;
@@ -21,9 +23,7 @@ class Player extends Actor {
 	public controlsMemory: Array<boolean> = [false, false, false, false, false, false];
 
 	constructor(name: string, pos: Vector2D, size: Vector2D, sprites: string, direction: boolean) {
-		super(name, pos, size, sprites);
-		this.pos = this.pos.plus(new Vector2D(0, -1));
-		this.direction = direction;
+		super(name, pos, size, sprites, direction);
 	}
 
 	public attackMoveX = (step: number, level: Level): void => {

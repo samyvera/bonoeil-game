@@ -56,13 +56,13 @@ class CanvasDisplay {
 			this.cx.fillText("x:" + actor.pos.x, posX - 1, posY - scale);
 			this.cx.fillText("x:" + actor.pos.x, posX, posY - scale + 1);
 			this.cx.fillText("x:" + actor.pos.x, posX, posY - scale - 1);
-			this.cx.fillText("y:" + actor.pos.y, posX + 1, posY - scale/2);
-			this.cx.fillText("y:" + actor.pos.y, posX - 1, posY - scale/2);
-			this.cx.fillText("y:" + actor.pos.y, posX, posY - scale/2 + 1);
-			this.cx.fillText("y:" + actor.pos.y, posX, posY - scale/2 - 1);
+			this.cx.fillText("y:" + actor.pos.y, posX + 1, posY - scale / 2);
+			this.cx.fillText("y:" + actor.pos.y, posX - 1, posY - scale / 2);
+			this.cx.fillText("y:" + actor.pos.y, posX, posY - scale / 2 + 1);
+			this.cx.fillText("y:" + actor.pos.y, posX, posY - scale / 2 - 1);
 			this.cx.fillStyle = "#fff";
 			this.cx.fillText("x:" + actor.pos.x, posX, posY - scale);
-			this.cx.fillText("y:" + actor.pos.y, posX, posY - scale/2);
+			this.cx.fillText("y:" + actor.pos.y, posX, posY - scale / 2);
 		}
 	}
 
@@ -132,14 +132,32 @@ class CanvasDisplay {
 		this.cx.fillRect(0, 0, this.canvas.width, scale * 1);
 		this.cx.fillRect(0, scale * 10, this.canvas.width, scale * 2);
 
-		this.cx.font = "16px rcr";
-		this.cx.fillStyle = "white";
-		this.cx.fillText("TEST ZONE", scale * 0.5, scale * 0.75);
-		if (this.level.messageBox1 !== "") {
-			this.cx.fillText(this.level.messageBox1Actor + " : " + this.level.messageBox1.substring(0, Math.floor(this.level.messageTime1 / 5)), scale * 0.5, scale * 10.75);
-		}
-		if (this.level.messageBox2 !== "") {
-			this.cx.fillText(this.level.messageBox2Actor + " : " + this.level.messageBox2.substring(0, Math.floor(this.level.messageTime2 / 5)), scale * 0.5, scale * 11.75);
+		let player: Actor = this.level.actors.get("player");
+		if (player instanceof Player) {
+			this.cx.font = "16px rcr";
+			this.cx.fillStyle = "white";
+			this.cx.fillText(player.name.toUpperCase(), scale * 0.5, scale * 0.75);
+			if (this.level.messageBox1 !== "") {
+				this.cx.fillText(this.level.messageBox1Actor + " : " + this.level.messageBox1.substring(0, Math.floor(this.level.messageTime1 / 5)), scale * 0.5, scale * 10.75);
+			}
+			if (this.level.messageBox2 !== "") {
+				this.cx.fillText(this.level.messageBox2Actor + " : " + this.level.messageBox2.substring(0, Math.floor(this.level.messageTime2 / 5)), scale * 0.5, scale * 11.75);
+			}
+
+			for (let i = 0; i < player.maxHealth; i++) {
+				this.cx.fillStyle = "white";
+				this.cx.fillRect(scale * 2.25 + 2 * i, 10, 2, 1);
+				if (i === 0 || i === player.maxHealth - 1) {
+					this.cx.fillRect(scale * 2.25 + 2 * i, 5, 2, 1);
+				}
+				if (i < player.health) {
+					this.cx.fillRect(scale * 2.25 + 2 * i, 7, 2, 2);
+				}
+				else {
+					this.cx.fillStyle = "#C04040";
+					this.cx.fillRect(scale * 2.25 + 2 * i, 7, 2, 2);
+				}
+			}
 		}
 	}
 
@@ -392,7 +410,7 @@ class CanvasDisplay {
 			if (actor instanceof Npc && actor.messageArrow) {
 				let arrow: HTMLImageElement = document.createElement("img");
 				var cursorX = Math.floor(this.animationTime * 3) % 4;
-				arrow.src = "img/actors/cursor.png";
+				arrow.src = "img/hud/cursor.png";
 				this.cx.drawImage(arrow,
 					cursorX * scale, 0, scale, scale,
 					posX, posY - scale * 2, scale, scale);
