@@ -14,8 +14,6 @@ class Player extends Actor {
         this.jumpSpeed = scale * 0.75;
         this.jumpFrame = 0;
         this.gravity = scale * 4;
-        this.dashSpeed = scale * 1.5;
-        this.dashResistance = scale * 4;
         this.controls = [false, false, false, false, false, false];
         this.controlsMemory = [false, false, false, false, false, false];
         this.attackMoveX = (step, level) => {

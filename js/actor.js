@@ -45,3 +45,34 @@ class Teleporter extends Actor {
         this.newPos = newPos;
     }
 }
+class Projectile extends Actor {
+    constructor(name, pos, size, sprites, direction, path) {
+        super(name, pos, size, sprites, direction);
+        this.speed = new Vector2D(0, 0);
+        this.xSpeed = scale / 2;
+        this.ySpeed = scale / 2;
+        this.gravity = null;
+        this.act = (step, level, keys) => {
+            this.speed.x = this.path.x * this.xSpeed;
+            if (!this.gravity) {
+                this.speed.y = this.path.y * this.ySpeed;
+            }
+            else {
+                this.speed.y += this.gravity * step;
+            }
+            var motion = this.speed.times(step);
+            var newPos = this.pos.plus(motion);
+            var obstacle = level.obstacleAt(newPos, this.size);
+            var wood = obstacle && (obstacle.fieldType === "wood" || obstacle.fieldType === "wood-left" || obstacle.fieldType === "wood-right");
+            if (obstacle && !wood || obstacle && wood && this.pos.y + this.size.y < obstacle.pos.y || obstacle && wood && this.pos.y + this.size.y === obstacle.pos.y) {
+                level.actors.delete(this.name.toLowerCase());
+            }
+            else {
+                this.pos = newPos;
+            }
+            this.pos.x = Math.round(this.pos.x * 100) / 100;
+            this.pos.y = Math.round(this.pos.y * 100) / 100;
+        };
+        this.path = path;
+    }
+}

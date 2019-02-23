@@ -113,7 +113,8 @@ var room02 = [
 ];
 var room01Actors = new Map()
     .set("child", new Npc("Young girl", new Vector2D(16, 14), new Vector2D(1, 1), "child", true, "U- Urg... save me... please...", null))
-    .set("villager", new Npc("Villager", new Vector2D(11, 12), new Vector2D(1, 2), "villager", true, "Hello there !", "watch"));
+    .set("villager", new Npc("Villager", new Vector2D(11, 12), new Vector2D(1, 2), "villager", true, "Hello there !", "watch"))
+    .set("enemy", new Enemy("Enemy", new Vector2D(24, 13.5), new Vector2D(1, 1.5), "enemy", false));
 var room02Actors = new Map();
 /* MULTIPLE ROOMS ACTORS */
 room01Actors

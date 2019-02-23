@@ -60,3 +60,41 @@ class Teleporter extends Actor {
         }
     }
 }
+
+class Projectile extends Actor {
+
+    public path: Vector2D;
+    public speed: Vector2D = new Vector2D(0, 0);
+    public xSpeed: number = scale / 2;
+    public ySpeed: number = scale / 2;
+    public gravity: number = null;
+
+    constructor(name: string, pos: Vector2D, size: Vector2D, sprites: string, direction: boolean, path: Vector2D) {
+        super(name, pos, size, sprites, direction);
+        this.path = path;
+    }
+
+    public act = (step: number, level: Level, keys:Map<string, boolean>): void => {
+        this.speed.x = this.path.x * this.xSpeed;
+        if (!this.gravity) {
+            this.speed.y = this.path.y * this.ySpeed;
+        }
+        else {
+            this.speed.y += this.gravity * step;
+        }
+
+		var motion: Vector2D = this.speed.times(step);
+		var newPos: Vector2D = this.pos.plus(motion);
+		var obstacle: Bloc = level.obstacleAt(newPos, this.size);
+        var wood: boolean = obstacle && (obstacle.fieldType === "wood" || obstacle.fieldType === "wood-left" || obstacle.fieldType === "wood-right");
+
+		if (obstacle && !wood || obstacle && wood && this.pos.y + this.size.y < obstacle.pos.y || obstacle && wood && this.pos.y + this.size.y === obstacle.pos.y) {
+			level.actors.delete(this.name.toLowerCase());
+		}
+		else {
+			this.pos = newPos;
+		}
+		this.pos.x = Math.round(this.pos.x * 100) / 100;
+		this.pos.y = Math.round(this.pos.y * 100) / 100;
+    }
+}

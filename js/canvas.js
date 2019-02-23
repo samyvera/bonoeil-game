@@ -572,11 +572,40 @@ class CanvasDisplay {
                 var spriteY = 0;
                 var sprites = document.createElement("img");
                 sprites.src = actor.sprites;
-                if (actor.name === "Young girl") {
+                if (actor instanceof Enemy && actor.name === "Enemy") {
+                    if (actor.action === null) {
+                        if (actor.speed.y === 0) {
+                            spriteX = Math.floor(this.animationTime * 2) % 2;
+                        }
+                        else {
+                            if (actor.speed.y > 0) {
+                                spriteX = 3;
+                            }
+                            else {
+                                spriteX = 2;
+                            }
+                        }
+                    }
+                    else if (actor.action === "attack") {
+                        spriteX = Math.floor(actor.actionFrame / 10) % 6;
+                        spriteY = 1;
+                    }
+                    this.cx.save();
+                    if (!actor.direction) {
+                        this.flipHorizontally(this.cx, posX + scale / 2);
+                    }
+                    this.cx.drawImage(sprites, spriteX * scale * 3, spriteY * (height + scale * 2), width * 3, height + scale * 2, posX - scale, posY - scale, width * 3, height + scale * 2);
+                    this.cx.restore();
+                }
+                else if (actor instanceof Projectile) {
+                    spriteX = Math.floor(this.animationTime * 16) % 2;
+                    this.cx.drawImage(sprites, spriteX * width * 2, spriteY * height * 2, width * 2, height * 2, posX - scale * 0.25, posY - scale * 0.25, width * 2, height * 2);
+                }
+                else if (actor instanceof Npc && actor.name === "Young girl") {
                     spriteX = Math.floor(this.animationTime * 3) % 3;
                     this.cx.drawImage(sprites, spriteX * width * 2, spriteY * height * 2, width * 2, height * 2, posX - scale / 2, posY - scale, width * 2, height * 2);
                 }
-                else if (actor.name === "Villager" && actor instanceof Npc) {
+                else if (actor instanceof Npc && actor.name === "Villager") {
                     spriteX = Math.floor(this.animationTime * 3) % 2;
                     this.cx.save();
                     if (!actor.direction) {
@@ -599,7 +628,7 @@ class CanvasDisplay {
                     spriteX = Math.floor(this.animationTime * 8) % 4;
                 }
                 if (player.speed.y !== 0) {
-                    spriteY = 2;
+                    spriteY = player.size.y;
                     if (player.speed.y < 0) {
                         spriteX = 0;
                     }

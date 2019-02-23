@@ -16,8 +16,6 @@ class Player extends Actor {
 	public jumpSpeed: number = scale * 0.75;
 	public jumpFrame: number = 0;
 	public gravity: number = scale * 4;
-	public dashSpeed: number = scale * 1.5;
-	public dashResistance: number = scale * 4;
 
 	public controls: Array<boolean> = [false, false, false, false, false, false];
 	public controlsMemory: Array<boolean> = [false, false, false, false, false, false];
