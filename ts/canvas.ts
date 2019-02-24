@@ -503,7 +503,7 @@ class CanvasDisplay {
 	}
 
 	public drawPlayer = (player: Player, sprites: HTMLImageElement, spriteX: number, spriteY: number, posX: number, posY: number, width: number, height: number): void => {
-		if (player.status === null) {
+		if (player.status === null || player.status === "invincible") {
 			spriteY = 0;
 			spriteX = Math.floor(this.animationTime * 3) % 4;
 
@@ -555,6 +555,10 @@ class CanvasDisplay {
 		else if (player.status === "stagger") {
 			spriteY = 6;
 			spriteX = 0;
+		}
+		if (player.status === "invincible" && Math.floor(player.invincibleFrame / 2) % 2 === 0) {
+			spriteX = -1;
+			spriteY = -1;
 		}
 
 		this.cx.save();

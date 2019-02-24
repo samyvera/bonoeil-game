@@ -8,6 +8,7 @@ class Player extends Actor {
         this.jab1Buffer = false;
         this.jab2Buffer = false;
         this.status = null;
+        this.invincibleFrame = 0;
         this.maxHealth = 20;
         this.health = 20;
         this.xSpeed = scale / 2;
@@ -218,6 +219,50 @@ class Player extends Actor {
                 this.pos.y -= 0.5;
             }
         };
+        this.knockback = (step, level) => {
+            if (this.size.y === 1.5) {
+                this.size.y = 2;
+                this.pos.y -= 0.5;
+            }
+            if (this.actionFrame === 0) {
+                this.speed.y = -this.jumpSpeed;
+            }
+            if (this.direction) {
+                this.speed.x = -this.xSpeed / 2;
+            }
+            else {
+                this.speed.x = this.xSpeed / 2;
+            }
+            this.speed.y += step * this.gravity;
+            var motion = this.speed.times(step);
+            var newPos = this.pos.plus(motion);
+            var obstacle = level.obstacleAt(newPos, this.size);
+            var wood = obstacle && (obstacle.fieldType === "wood" || obstacle.fieldType === "wood-left" || obstacle.fieldType === "wood-right");
+            if (obstacle && !wood || obstacle && wood && this.pos.y + this.size.y < obstacle.pos.y || obstacle && wood && this.pos.y + this.size.y === obstacle.pos.y) {
+                if (this.speed.y > 0) {
+                    this.speed.y = 0;
+                    this.pos.y = Math.round(this.pos.y * 10) / 10;
+                    if (this.pos.y % 0.5 !== 0) {
+                        this.pos.y = Math.round(this.pos.y);
+                    }
+                }
+                else {
+                    this.speed.y = -1;
+                }
+            }
+            else {
+                this.pos = newPos;
+            }
+            this.pos.x = Math.round(this.pos.x * 100) / 100;
+            this.pos.y = Math.round(this.pos.y * 100) / 100;
+            this.actionFrame++;
+            if (this.actionFrame === 25) {
+                this.speed = new Vector2D(0, 0);
+                this.status = "invincible";
+                this.invincibleFrame = 40;
+                this.action = null;
+            }
+        };
         this.talk = (step, level) => {
             var actor = level.actorAt(this);
             if (actor && actor instanceof Npc) {
@@ -264,7 +309,7 @@ class Player extends Actor {
             var floor = level.obstacleAt(this.pos.plus(new Vector2D(0, this.size.y)), new Vector2D(1, 1));
             var air = level.obstacleAt(edgePos.plus(new Vector2D(0, -0.5)), new Vector2D(0, 0.25));
             var air2 = level.obstacleAt(this.pos, new Vector2D(1, 0.5));
-            if (this.status === null) {
+            if (this.status === null || this.status === "invincible") {
                 if (this.jumpFrame > 4 && edge && edge.fieldType !== "wood" && edge.fieldType !== "wood-left" && edge.fieldType !== "wood-right" &&
                     !air && !air2 && !floor && this.action !== "grip" && this.action !== "aerialAttack" && this.controls[2] && !this.direction ||
                     this.jumpFrame > 4 && edge && edge.fieldType !== "wood" && edge.fieldType !== "wood-left" && edge.fieldType !== "wood-right" &&
@@ -330,13 +375,15 @@ class Player extends Actor {
                     this.moveY(step, level);
                     this.attack(step, level);
                 }
+                if (this.status === "invincible") {
+                    this.invincibleFrame--;
+                    if (this.invincibleFrame === 0) {
+                        this.status = null;
+                    }
+                }
             }
             else if (this.status === "stagger") {
-                this.actionFrame++;
-                if (this.actionFrame === 40) {
-                    this.status = null;
-                    this.action = null;
-                }
+                this.knockback(step, level);
             }
             this.input = null;
             for (let i = 0; i < this.controls.length; i++) {
