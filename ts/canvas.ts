@@ -44,7 +44,12 @@ class CanvasDisplay {
 	}
 
 	public debugMode = (actor: Actor): void => {
-		this.cx.fillStyle = "rgba(0, 0, 255, 0.5)";
+		if (actor instanceof Hitbox) {
+			this.cx.fillStyle = "rgba(255, 0, 0, 0.5)";
+		}
+		else {
+			this.cx.fillStyle = "rgba(0, 0, 255, 0.5)";
+		}
 		var posX: number = (actor.pos.x - this.viewport.left) * scale;
 		var posY: number = (actor.pos.y - this.viewport.top) * scale;
 		this.cx.fillRect(
@@ -103,10 +108,10 @@ class CanvasDisplay {
 		var yEnd: number = Math.ceil(view.top + view.height + 6);
 
 		this.cx.fillStyle = "black";
-		this.cx.fillRect(0, 0, this.canvas.width/this.zoom, scale * 1);
-		this.cx.fillRect(0, scale * 10, this.canvas.width/this.zoom, scale * 2);
-		this.cx.fillRect(-scale*2, 0, scale*2, this.canvas.height/this.zoom);
-		this.cx.fillRect(this.canvas.width/this.zoom, 0, scale*2, this.canvas.height/this.zoom);
+		this.cx.fillRect(0, 0, this.canvas.width / this.zoom, scale * 1);
+		this.cx.fillRect(0, scale * 10, this.canvas.width / this.zoom, scale * 2);
+		this.cx.fillRect(-scale * 2, 0, scale * 2, this.canvas.height / this.zoom);
+		this.cx.fillRect(this.canvas.width / this.zoom, 0, scale * 2, this.canvas.height / this.zoom);
 
 		let player: Actor = this.level.actors.get("player");
 		if (player instanceof Player) {
@@ -138,8 +143,8 @@ class CanvasDisplay {
 			if (player.status === "stagger" && player.actionFrame < 20) {
 				this.cx.fillStyle = "rgba(255, 0, 0, " + (1 - player.actionFrame / 20) + ")";
 				this.cx.fillRect(0, scale, this.canvas.width, scale * 9);
-				var dx = Math.floor(Math.random()*5) - 2;
-				var dy = Math.floor(Math.random()*5) - 2;
+				var dx = Math.floor(Math.random() * 5) - 2;
+				var dy = Math.floor(Math.random() * 5) - 2;
 				this.cx.translate(dx, dy);
 			}
 			else {
@@ -444,23 +449,28 @@ class CanvasDisplay {
 			sprites.src = actor.sprites;
 
 			if (actor instanceof Enemy) {
-				if (actor.action === null) {
-					if (actor.speed.y === 0) {
-						spriteX = Math.floor(this.animationTime * 2) % 2;
+				if (actor.status === null) {
+					if (actor.action === null) {
+						if (actor.speed.y === 0) {
+							spriteX = Math.floor(this.animationTime * 2) % 2;
+						}
+						else {
+							if (actor.speed.y > 0) { spriteX = 3; }
+							else { spriteX = 2; }
+						}
 					}
-					else {
-						if (actor.speed.y > 0) { spriteX = 3; }
-						else { spriteX = 2; }
+					else if (actor.action === "attack") {
+						spriteX = Math.floor(actor.actionFrame / 10) % 6;
+						if (actor.speed.y === 0) {
+							spriteY = 1;
+						}
+						else {
+							spriteY = 2;
+						}
 					}
 				}
-				else if (actor.action === "attack") {
-					spriteX = Math.floor(actor.actionFrame / 10) % 6;
-					if (actor.speed.y === 0) {
-						spriteY = 1;
-					}
-					else {
-						spriteY = 2;
-					}
+				else if (actor.status === "stagger") {
+					spriteX = 4;
 				}
 
 				this.cx.save();

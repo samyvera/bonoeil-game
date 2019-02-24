@@ -38,11 +38,37 @@ class Teleporter extends Actor {
         super(name, pos, size, sprites, direction);
         this.act = (step, level, keys) => {
             if (level.actorAt(level.actors.get("player")) && level.actorAt(level.actors.get("player")).name === this.name) {
+                this.level.actors.forEach(actor => {
+                    if (actor instanceof Projectile) {
+                        this.level.actors.delete(actor.name.toLowerCase());
+                    }
+                });
                 game.changeLevel(this.level, this.newPos, this.direction);
             }
         };
         this.level = level;
         this.newPos = newPos;
+    }
+}
+class Hitbox extends Actor {
+    constructor(name, pos, size, sprites, direction, activeFrame, actor, target) {
+        super(name, pos, size, sprites, direction);
+        this.updatePos = (step, level) => {
+            if (!this.actor.pos.equals(this.lastActorPos) && (this.actor instanceof Enemy || this.actor instanceof Player)) {
+                this.pos = this.pos.plus(this.lastActorPos.plus(this.actor.pos));
+            }
+        };
+        this.act = (step, level, keys) => {
+            this.activeFrame--;
+            this.updatePos(step, level);
+            if (this.activeFrame <= 0) {
+                level.actors.delete(this.name.toLowerCase());
+            }
+        };
+        this.activeFrame = activeFrame;
+        this.actor = actor;
+        this.lastActorPos = actor.pos;
+        this.target = target;
     }
 }
 class Projectile extends Actor {

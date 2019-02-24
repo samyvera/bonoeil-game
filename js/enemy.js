@@ -7,8 +7,8 @@ class Enemy extends Actor {
         this.actionFrame = 0;
         this.frame = 0;
         this.status = null;
-        this.maxHealth = 20;
-        this.health = 20;
+        this.maxHealth = 3;
+        this.health = 3;
         this.xDirection = 0;
         this.xSpeed = scale / 8;
         this.jumpSpeed = scale / 2;
@@ -84,29 +84,82 @@ class Enemy extends Actor {
                 this.action = null;
             }
         };
+        this.knockback = (step, level) => {
+            if (this.actionFrame === 0) {
+                this.speed.y = -this.jumpSpeed * 0.75;
+            }
+            if (this.direction) {
+                this.speed.x = -this.xSpeed;
+            }
+            else {
+                this.speed.x = this.xSpeed;
+            }
+            this.speed.y += step * this.gravity;
+            var motion = this.speed.times(step);
+            var newPos = this.pos.plus(motion);
+            var obstacle = level.obstacleAt(newPos, this.size);
+            var wood = obstacle && (obstacle.fieldType === "wood" || obstacle.fieldType === "wood-left" || obstacle.fieldType === "wood-right");
+            if (obstacle && !wood || obstacle && wood && this.pos.y + this.size.y < obstacle.pos.y || obstacle && wood && this.pos.y + this.size.y === obstacle.pos.y) {
+                if (this.speed.y > 0) {
+                    this.speed.y = 0;
+                    this.pos.y = Math.round(this.pos.y * 10) / 10;
+                }
+                else {
+                    this.speed.y = -1;
+                }
+            }
+            else {
+                this.pos = newPos;
+            }
+            this.pos.x = Math.round(this.pos.x * 100) / 100;
+            this.pos.y = Math.round(this.pos.y * 100) / 100;
+            this.actionFrame++;
+            if (this.actionFrame === 20) {
+                this.speed = new Vector2D(0, 0);
+                this.status = null;
+                this.action = null;
+            }
+        };
+        this.die = (step, level) => {
+            level.actors.delete(this.name.toLowerCase());
+        };
         this.act = (step, level, keys) => {
             this.controls = [
                 (this.frame % 200 === 0),
                 (this.frame % 64 === 0)
             ];
-            if (level.actors.get("player").pos.x > this.pos.x) {
-                this.direction = true;
+            var actor = level.actorAt(this);
+            if (this.status === null && actor && actor instanceof Hitbox && actor.target === "enemy") {
+                this.status = "stagger";
+                this.actionFrame = 0;
+                this.health--;
             }
-            else {
-                this.direction = false;
+            if (this.status === null) {
+                if (level.actors.get("player").pos.x > this.pos.x) {
+                    this.direction = true;
+                }
+                else {
+                    this.direction = false;
+                }
+                if (this.controls[0] && this.action === null) {
+                    this.input = "attack";
+                    this.action = "attack";
+                }
+                if (this.action === null) {
+                    this.moveX(step, level);
+                    this.moveY(step, level);
+                }
+                else if (this.action === "attack") {
+                    this.moveX(step, level);
+                    this.moveY(step, level);
+                    this.attack(step, level);
+                }
             }
-            if (this.controls[0] && this.action === null) {
-                this.input = "attack";
-                this.action = "attack";
+            else if (this.status === "stagger") {
+                this.knockback(step, level);
             }
-            if (this.action === null) {
-                this.moveX(step, level);
-                this.moveY(step, level);
-            }
-            else if (this.action === "attack") {
-                this.moveX(step, level);
-                this.moveY(step, level);
-                this.attack(step, level);
+            if (this.health <= 0) {
+                this.die(step, level);
             }
             this.input = null;
             this.frame++;

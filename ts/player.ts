@@ -185,6 +185,15 @@ class Player extends Actor {
 			if (this.input !== "jabAttack1" && this.controls[1] && !this.controlsMemory[1]) {
 				this.jab1Buffer = true;
 			}
+
+			if (this.actionFrame === 10) {
+				let xPos: number;
+				if (this.direction) { xPos = 0.5; }
+				else { xPos = -1.75; }
+				level.actors.set(("jabAttack1" + this.name).toLowerCase(),
+					new Hitbox("JabAttack1" + this.name, this.pos.plus(new Vector2D(xPos, 0.5)), new Vector2D(2.25, 1.25), "null", true, 8, this, "enemy"));
+			}
+
 			if (this.actionFrame === 20) {
 				this.action = null;
 			}
@@ -193,16 +202,43 @@ class Player extends Actor {
 			if (this.input !== "jabAttack2" && this.controls[1] && !this.controlsMemory[1]) {
 				this.jab2Buffer = true;
 			}
+
+			if (this.actionFrame === 12) {
+				let xPos: number;
+				if (this.direction) { xPos = 0.5; }
+				else { xPos = -1.75; }
+				level.actors.set(("jabAttack2" + this.name).toLowerCase(),
+					new Hitbox("JabAttack2" + this.name, this.pos.plus(new Vector2D(xPos, 0.5)), new Vector2D(2.25, 1.25), "null", true, 8, this, "enemy"));
+			}
+
 			if (this.actionFrame === 24) {
 				this.action = null;
 			}
 		}
 		else if (this.action === "jabAttack3") {
+
+			if (this.actionFrame === 12) {
+				let xPos: number;
+				if (this.direction) { xPos = 1.5; }
+				else { xPos = -1.5; }
+				level.actors.set(("jabAttack3" + this.name).toLowerCase(),
+					new Hitbox("JabAttack3" + this.name, this.pos.plus(new Vector2D(xPos, 0)), new Vector2D(1, 2), "null", true, 8, this, "enemy"));
+			}
+
 			if (this.actionFrame === 24) {
 				this.action = null;
 			}
 		}
 		else if (this.action === "aerialAttack" || this.action === "landingAttack") {
+
+			if (this.actionFrame === 12) {
+				let xPos: number;
+				if (this.direction) { xPos = 1; }
+				else { xPos = -1.5; }
+				level.actors.set(("aerialAttack" + this.name).toLowerCase(),
+					new Hitbox("AerialAttack" + this.name, this.pos.plus(new Vector2D(xPos, 0)), new Vector2D(1.25, 2), "null", true, 8, this, "enemy"));
+			}
+
 			if (this.actionFrame === 24) {
 				this.action = null;
 			}
@@ -297,7 +333,7 @@ class Player extends Actor {
 
 		var actor = level.actorAt(this);
 
-		if (this.status === null && actor && (actor instanceof Enemy || actor instanceof Projectile)) {
+		if (this.status === null && actor && ((actor instanceof Enemy && actor.status === null) || actor instanceof Projectile)) {
 			this.status = "stagger";
 			this.actionFrame = 0;
 			this.health--;

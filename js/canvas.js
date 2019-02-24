@@ -21,7 +21,12 @@ class CanvasDisplay {
             }
         };
         this.debugMode = (actor) => {
-            this.cx.fillStyle = "rgba(0, 0, 255, 0.5)";
+            if (actor instanceof Hitbox) {
+                this.cx.fillStyle = "rgba(255, 0, 0, 0.5)";
+            }
+            else {
+                this.cx.fillStyle = "rgba(0, 0, 255, 0.5)";
+            }
             var posX = (actor.pos.x - this.viewport.left) * scale;
             var posY = (actor.pos.y - this.viewport.top) * scale;
             this.cx.fillRect(posX, posY, actor.size.x * scale, actor.size.y * scale);
@@ -586,27 +591,32 @@ class CanvasDisplay {
                 var sprites = document.createElement("img");
                 sprites.src = actor.sprites;
                 if (actor instanceof Enemy) {
-                    if (actor.action === null) {
-                        if (actor.speed.y === 0) {
-                            spriteX = Math.floor(this.animationTime * 2) % 2;
-                        }
-                        else {
-                            if (actor.speed.y > 0) {
-                                spriteX = 3;
+                    if (actor.status === null) {
+                        if (actor.action === null) {
+                            if (actor.speed.y === 0) {
+                                spriteX = Math.floor(this.animationTime * 2) % 2;
                             }
                             else {
-                                spriteX = 2;
+                                if (actor.speed.y > 0) {
+                                    spriteX = 3;
+                                }
+                                else {
+                                    spriteX = 2;
+                                }
+                            }
+                        }
+                        else if (actor.action === "attack") {
+                            spriteX = Math.floor(actor.actionFrame / 10) % 6;
+                            if (actor.speed.y === 0) {
+                                spriteY = 1;
+                            }
+                            else {
+                                spriteY = 2;
                             }
                         }
                     }
-                    else if (actor.action === "attack") {
-                        spriteX = Math.floor(actor.actionFrame / 10) % 6;
-                        if (actor.speed.y === 0) {
-                            spriteY = 1;
-                        }
-                        else {
-                            spriteY = 2;
-                        }
+                    else if (actor.status === "stagger") {
+                        spriteX = 4;
                     }
                     this.cx.save();
                     if (!actor.direction) {

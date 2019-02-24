@@ -56,7 +56,47 @@ class Teleporter extends Actor {
 
     public act = (step: number, level: Level, keys:Map<string, boolean>): void => {
         if (level.actorAt(level.actors.get("player")) && level.actorAt(level.actors.get("player")).name === this.name) {
+
+            this.level.actors.forEach(actor => {
+                if (actor instanceof Projectile) {
+                    this.level.actors.delete(actor.name.toLowerCase());
+                }
+            });
+
 			game.changeLevel(this.level, this.newPos, this.direction);
+        }
+    }
+}
+
+class Hitbox extends Actor {
+
+    public activeFrame: number;
+    public actor: Actor;
+    public lastActorPos: Vector2D;
+    public target: string;
+
+
+    constructor(name: string, pos: Vector2D, size: Vector2D, sprites: string, direction: boolean, activeFrame: number, actor: Actor, target: string) {
+        super(name, pos, size, sprites, direction);
+        this.activeFrame = activeFrame;
+        this.actor = actor;
+        this.lastActorPos = actor.pos;
+        this.target = target;
+    }
+
+    public updatePos = (step: number, level: Level) => {
+        if (!this.actor.pos.equals(this.lastActorPos) && (this.actor instanceof Enemy || this.actor instanceof Player)) {
+            this.pos = this.pos.plus(this.lastActorPos.plus(this.actor.pos));
+        }
+    }
+
+    public act = (step: number, level: Level, keys:Map<string, boolean>): void => {
+        this.activeFrame--;
+
+        this.updatePos(step, level);
+
+        if (this.activeFrame <= 0) {
+			level.actors.delete(this.name.toLowerCase());
         }
     }
 }

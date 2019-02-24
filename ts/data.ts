@@ -115,8 +115,8 @@ var room02: Array<Array<string>> = [
 var room01Actors: Map<string, Actor> = new Map<string, Actor>()
   .set("child", new Npc("Young girl", new Vector2D(16, 14), new Vector2D(1, 1), "child", true, "U- Urg... save me... please...", null))
   .set("villager", new Npc("Villager", new Vector2D(11, 12), new Vector2D(1, 2), "villager", true, "Hello there !", "watch"))
-  .set("enemyA", new Enemy("EnemyA", new Vector2D(24, 13.5), new Vector2D(1, 1.5), "enemy", false))
-  .set("enemyB", new Enemy("EnemyB", new Vector2D(22, 13.5), new Vector2D(1, 1.5), "enemy", false));
+  .set("enemy_a", new Enemy("Enemy_A", new Vector2D(24, 13.5), new Vector2D(1, 1.5), "enemy", false))
+  .set("enemy_b", new Enemy("Enemy_B", new Vector2D(22, 13.5), new Vector2D(1, 1.5), "enemy", false));
 var room02Actors: Map<string, Actor> = new Map<string, Actor>();
 
 /* MULTIPLE ROOMS ACTORS */
