@@ -65,9 +65,11 @@ class Projectile extends Actor {
 
     public path: Vector2D;
     public speed: Vector2D = new Vector2D(0, 0);
-    public xSpeed: number = scale / 2;
-    public ySpeed: number = scale / 2;
+    public xSpeed: number = 10;
+    public ySpeed: number = 10;
     public gravity: number = null;
+
+    public lastFrame: number = 120;
 
     constructor(name: string, pos: Vector2D, size: Vector2D, sprites: string, direction: boolean, path: Vector2D) {
         super(name, pos, size, sprites, direction);
@@ -89,12 +91,16 @@ class Projectile extends Actor {
         var wood: boolean = obstacle && (obstacle.fieldType === "wood" || obstacle.fieldType === "wood-left" || obstacle.fieldType === "wood-right");
 
 		if (obstacle && !wood || obstacle && wood && this.pos.y + this.size.y < obstacle.pos.y || obstacle && wood && this.pos.y + this.size.y === obstacle.pos.y) {
-			level.actors.delete(this.name.toLowerCase());
+            this.lastFrame--;
 		}
 		else {
 			this.pos = newPos;
 		}
 		this.pos.x = Math.round(this.pos.x * 100) / 100;
-		this.pos.y = Math.round(this.pos.y * 100) / 100;
+        this.pos.y = Math.round(this.pos.y * 100) / 100;
+        
+        if (this.lastFrame === 0) {
+			level.actors.delete(this.name.toLowerCase());
+        }
     }
 }

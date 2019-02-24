@@ -43,10 +43,10 @@ class Level {
             var yStart = Math.floor(pos.y);
             var yEnd = Math.ceil(pos.y + size.y);
             if (xStart < 0) {
-                return new Bloc("void", new Vector2D(pos.x, pos.y), new Vector2D(1, 1));
+                return null;
             }
             if (xEnd > this.size.x) {
-                return new Bloc("void", new Vector2D(pos.x, pos.y), new Vector2D(1, 1));
+                return null;
             }
             if (yStart < 0) {
                 return null;

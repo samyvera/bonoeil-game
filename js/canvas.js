@@ -70,27 +70,11 @@ class CanvasDisplay {
             var xEnd = Math.ceil(view.left + view.width + 8);
             var yStart = Math.floor(view.top - 3);
             var yEnd = Math.ceil(view.top + view.height + 6);
-            for (let x = xStart; x < xEnd; x++) {
-                for (let y = yStart; y < yEnd; y++) {
-                    var tile = this.level.layer1.get(x + ", " + y);
-                    this.cx.fillStyle = "#4D533C";
-                    if (tile == null && x >= 0 && x < this.level.size.x && y >= 0 && y < this.level.size.y) {
-                        this.cx.fillStyle = "#C4CFA1";
-                    }
-                    this.cx.fillRect(scale * 14 + (x - xStart), scale * 1.25 + (y - yStart), 1, 1);
-                }
-            }
             this.cx.fillStyle = "black";
-            this.cx.fillRect(scale * 14 + (Math.floor(this.level.actors.get("player").pos.x + 0.25) - xStart) - 1, scale * 1.25 + (Math.floor(this.level.actors.get("player").pos.y) + 1 - yStart), 3, 1);
-            this.cx.fillRect(scale * 14 + (Math.floor(this.level.actors.get("player").pos.x + 0.25) - xStart), scale * 1.25 + (Math.floor(this.level.actors.get("player").pos.y) - yStart), 1, 3);
-            this.cx.fillStyle = "white";
-            this.cx.fillRect(scale * 14 + (Math.floor(this.level.actors.get("player").pos.x + 0.25) - xStart), scale * 1.25 + (Math.floor(this.level.actors.get("player").pos.y) + 1 - yStart), 1, 1);
-            var map = document.createElement("img");
-            map.src = "img/map.png";
-            this.cx.drawImage(map, 0, 0, 36, 27, scale * 13.75, scale, 36, 27);
-            this.cx.fillStyle = "black";
-            this.cx.fillRect(0, 0, this.canvas.width, scale * 1);
-            this.cx.fillRect(0, scale * 10, this.canvas.width, scale * 2);
+            this.cx.fillRect(0, 0, this.canvas.width / this.zoom, scale * 1);
+            this.cx.fillRect(0, scale * 10, this.canvas.width / this.zoom, scale * 2);
+            this.cx.fillRect(-scale * 2, 0, scale * 2, this.canvas.height / this.zoom);
+            this.cx.fillRect(this.canvas.width / this.zoom, 0, scale * 2, this.canvas.height / this.zoom);
             let player = this.level.actors.get("player");
             if (player instanceof Player) {
                 this.cx.font = "16px rcr";
@@ -116,7 +100,36 @@ class CanvasDisplay {
                         this.cx.fillRect(scale * 2.25 + 2 * i, 7, 2, 2);
                     }
                 }
+                if (player.status === "stagger" && player.actionFrame < 20) {
+                    this.cx.fillStyle = "rgba(255, 0, 0, " + (1 - player.actionFrame / 20) + ")";
+                    this.cx.fillRect(0, scale, this.canvas.width, scale * 9);
+                    var dx = Math.floor(Math.random() * 5) - 2;
+                    var dy = Math.floor(Math.random() * 5) - 2;
+                    this.cx.translate(dx, dy);
+                }
+                else {
+                    this.cx.restore();
+                    this.cx.save();
+                }
             }
+            for (let x = xStart; x < xEnd; x++) {
+                for (let y = yStart; y < yEnd; y++) {
+                    var tile = this.level.layer1.get(x + ", " + y);
+                    this.cx.fillStyle = "#4D533C";
+                    if (tile == null && x >= 0 && x < this.level.size.x && y >= 0 && y < this.level.size.y) {
+                        this.cx.fillStyle = "#C4CFA1";
+                    }
+                    this.cx.fillRect(scale * 14 + (x - xStart), scale * 1.25 + (y - yStart), 1, 1);
+                }
+            }
+            this.cx.fillStyle = "black";
+            this.cx.fillRect(scale * 14 + (Math.floor(this.level.actors.get("player").pos.x + 0.25) - xStart) - 1, scale * 1.25 + (Math.floor(this.level.actors.get("player").pos.y) + 1 - yStart), 3, 1);
+            this.cx.fillRect(scale * 14 + (Math.floor(this.level.actors.get("player").pos.x + 0.25) - xStart), scale * 1.25 + (Math.floor(this.level.actors.get("player").pos.y) - yStart), 1, 3);
+            this.cx.fillStyle = "white";
+            this.cx.fillRect(scale * 14 + (Math.floor(this.level.actors.get("player").pos.x + 0.25) - xStart), scale * 1.25 + (Math.floor(this.level.actors.get("player").pos.y) + 1 - yStart), 1, 1);
+            var map = document.createElement("img");
+            map.src = "img/map.png";
+            this.cx.drawImage(map, 0, 0, 36, 27, scale * 13.75, scale, 36, 27);
         };
         this.drawBackground = () => {
             var parallax = -(this.viewport.left * scale / this.level.size.x);
@@ -572,7 +585,7 @@ class CanvasDisplay {
                 var spriteY = 0;
                 var sprites = document.createElement("img");
                 sprites.src = actor.sprites;
-                if (actor instanceof Enemy && actor.name === "Enemy") {
+                if (actor instanceof Enemy) {
                     if (actor.action === null) {
                         if (actor.speed.y === 0) {
                             spriteX = Math.floor(this.animationTime * 2) % 2;
@@ -588,7 +601,12 @@ class CanvasDisplay {
                     }
                     else if (actor.action === "attack") {
                         spriteX = Math.floor(actor.actionFrame / 10) % 6;
-                        spriteY = 1;
+                        if (actor.speed.y === 0) {
+                            spriteY = 1;
+                        }
+                        else {
+                            spriteY = 2;
+                        }
                     }
                     this.cx.save();
                     if (!actor.direction) {
@@ -667,6 +685,10 @@ class CanvasDisplay {
                 if (Math.floor(this.animationTime * 8) % 24 === 0) {
                     spriteX += 4;
                 }
+            }
+            else if (player.status === "stagger") {
+                spriteY = 6;
+                spriteX = 0;
             }
             this.cx.save();
             if (!player.direction) {

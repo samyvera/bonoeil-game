@@ -16,7 +16,7 @@ class Enemy extends Actor {
         this.controls = [false];
         this.moveX = (step, level) => {
             this.speed.x = 0;
-            if (this.controls[1] || this.controls[2]) {
+            if (this.controls[1]) {
                 this.xDirection = Math.floor(Math.random() * 3);
             }
             else if (this.speed.y === 0) {
@@ -39,9 +39,9 @@ class Enemy extends Actor {
         this.moveY = (step, level) => {
             if (this.controls[1]) {
                 this.speed.y = -this.jumpSpeed;
-            }
-            if (this.controls[2]) {
-                this.speed.y *= 1.5;
+                if (Math.floor(Math.random() * 3) === 2) {
+                    this.speed.y *= 1.5;
+                }
             }
             this.speed.y += step * this.gravity;
             var motion = new Vector2D(0, this.speed.y * step);
@@ -78,7 +78,7 @@ class Enemy extends Actor {
                 else {
                     pathX = -1;
                 }
-                level.actors.set("cog" + this.frame, new Projectile("Cog" + this.frame, this.pos.plus(new Vector2D(0.5, 0.5)), new Vector2D(0.5, 0.5), "cog", true, new Vector2D(pathX, 0)));
+                level.actors.set("cog" + this.name.toLowerCase() + this.frame, new Projectile("Cog" + this.name + this.frame, this.pos.plus(new Vector2D(0.5, 0.5)), new Vector2D(0.5, 0.5), "cog", true, new Vector2D(pathX, 0)));
             }
             if (this.actionFrame === 60) {
                 this.action = null;
@@ -87,8 +87,7 @@ class Enemy extends Actor {
         this.act = (step, level, keys) => {
             this.controls = [
                 (this.frame % 200 === 0),
-                (this.frame % 64 === 0),
-                (this.frame % (64 * 3) === 0)
+                (this.frame % 64 === 0)
             ];
             if (level.actors.get("player").pos.x > this.pos.x) {
                 this.direction = true;
