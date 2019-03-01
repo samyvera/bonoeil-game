@@ -336,7 +336,7 @@ class Player extends Actor {
 		var actor = level.actorAt(this);
 
 		if (this.status === null && actor && ((actor instanceof Enemy && actor.status === null) || actor instanceof Projectile)) {
-			if (!(this.action === "jabAttack1" || this.action === "jabAttack2" || this.action === "jabAttack3" || this.action === "aerialAttack" || this.action === "landingAttack" &&
+			if (actor instanceof Projectile || !(this.action === "jabAttack1" || this.action === "jabAttack2" || this.action === "jabAttack3" || this.action === "aerialAttack" || this.action === "landingAttack" &&
 				(this.direction && this.pos.x < actor.pos.x) || (!this.direction && this.pos.x + this.size.x > actor.pos.x + actor.size.x))) {	
 				this.status = "stagger";
 				this.actionFrame = 0;
