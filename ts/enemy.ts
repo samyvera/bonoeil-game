@@ -112,13 +112,13 @@ class Enemy extends Actor {
 			this.speed.x = this.xSpeed;
 		}
 		this.speed.y += step * this.gravity;
-
+        
 		var motion: Vector2D = this.speed.times(step);
 		var newPos: Vector2D = this.pos.plus(motion);
 		var obstacle: Bloc = level.obstacleAt(newPos, this.size);
 		var wood: boolean = obstacle && (obstacle.fieldType === "wood" || obstacle.fieldType === "wood-left" || obstacle.fieldType === "wood-right");
 
-		if (obstacle && !wood || obstacle && wood && this.pos.y + this.size.y < obstacle.pos.y || obstacle && wood && this.pos.y + this.size.y === obstacle.pos.y) {
+        if (obstacle && !wood || obstacle && wood && this.pos.y + this.size.y < obstacle.pos.y || obstacle && wood && this.pos.y + this.size.y === obstacle.pos.y) {
 			if (this.speed.y > 0) {
 				this.speed.y = 0;
 				this.pos.y = Math.round(this.pos.y * 10) / 10;
@@ -134,7 +134,7 @@ class Enemy extends Actor {
 		this.pos.y = Math.round(this.pos.y * 100) / 100;
 
 		this.actionFrame++;
-		if (this.actionFrame === 20) {
+		if (this.actionFrame === 32) {
 			this.speed = new Vector2D(0, 0);
 			this.status = null;
 			this.action = null;
@@ -142,7 +142,10 @@ class Enemy extends Actor {
     }
     
     public die = (step: number, level: Level): void => {
-        level.actors.delete(this.name.toLowerCase());
+        if (this.actionFrame > 20) {
+            level.actors.delete(this.name.toLowerCase());
+        }
+		this.actionFrame++;
     }
 
     public act = (step: number, level: Level, keys: Map<string, boolean>): void => {
@@ -182,7 +185,11 @@ class Enemy extends Actor {
 			this.knockback(step, level);
         }
 
-        if (this.health <= 0) {
+        if (this.status === "die" || this.health <= 0) {
+            if (this.status !== "die") {
+                this.actionFrame = 0;
+            }
+            this.status = "die";
             this.die(step, level);
         }
 

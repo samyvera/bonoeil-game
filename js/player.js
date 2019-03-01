@@ -53,10 +53,11 @@ class Player extends Actor {
                     this.speed.x -= this.xSpeed / 4;
                 }
             }
+            var actor = level.actorAt(this);
             var motion = new Vector2D(this.speed.x * step, 0);
             var newPos = this.pos.plus(motion);
             var obstacle = level.obstacleAt(newPos, this.size);
-            if (!obstacle) {
+            if (!obstacle && (!actor || actor && !(actor instanceof Enemy))) {
                 this.pos = newPos;
             }
             this.pos.x = Math.round(this.pos.x * 100) / 100;
@@ -195,7 +196,7 @@ class Player extends Actor {
                     }
                     level.actors.set(("jabAttack1" + this.name).toLowerCase(), new Hitbox("JabAttack1" + this.name, this.pos.plus(new Vector2D(xPos, 0.5)), new Vector2D(2.25, 1.25), "null", true, 8, this, "enemy"));
                 }
-                if (this.actionFrame === 20) {
+                if (this.actionFrame === 20 && !this.jab1Buffer) {
                     this.action = null;
                 }
             }
@@ -213,7 +214,7 @@ class Player extends Actor {
                     }
                     level.actors.set(("jabAttack2" + this.name).toLowerCase(), new Hitbox("JabAttack2" + this.name, this.pos.plus(new Vector2D(xPos, 0.5)), new Vector2D(2.25, 1.25), "null", true, 8, this, "enemy"));
                 }
-                if (this.actionFrame === 24) {
+                if (this.actionFrame === 24 && !this.jab2Buffer) {
                     this.action = null;
                 }
             }
@@ -330,9 +331,12 @@ class Player extends Actor {
             ];
             var actor = level.actorAt(this);
             if (this.status === null && actor && ((actor instanceof Enemy && actor.status === null) || actor instanceof Projectile)) {
-                this.status = "stagger";
-                this.actionFrame = 0;
-                this.health--;
+                if (!(this.action === "jabAttack1" || this.action === "jabAttack2" || this.action === "jabAttack3" || this.action === "aerialAttack" || this.action === "landingAttack" &&
+                    (this.direction && this.pos.x < actor.pos.x) || (!this.direction && this.pos.x + this.size.x > actor.pos.x + actor.size.x))) {
+                    this.status = "stagger";
+                    this.actionFrame = 0;
+                    this.health--;
+                }
             }
             if (this.size.y === 1.5 && this.action !== "crouch") {
                 this.size.y = 2;
@@ -367,11 +371,11 @@ class Player extends Actor {
                     this.input = "jabAttack1";
                     this.action = "jabAttack1";
                 }
-                else if (this.jab1Buffer && (this.action === null || this.action === "crouch") && this.speed.y === 0) {
+                else if (this.action === "jabAttack1" && this.jab1Buffer && this.actionFrame === 20 && this.speed.y === 0) {
                     this.input = "jabAttack2";
                     this.action = "jabAttack2";
                 }
-                else if (this.jab2Buffer && (this.action === null || this.action === "crouch") && this.speed.y === 0) {
+                else if (this.action === "jabAttack2" && this.jab2Buffer && this.actionFrame === 24 && this.speed.y === 0) {
                     this.input = "jabAttack3";
                     this.action = "jabAttack3";
                 }

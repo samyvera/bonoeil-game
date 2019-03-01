@@ -69,6 +69,17 @@ class CanvasDisplay {
                 view.top = Math.min(center.y + marginHeight - view.height, this.level.size.y - view.height);
             }
         };
+        this.shakeScreeen = (actor, intensity) => {
+            if (actor instanceof Enemy || actor instanceof Player) {
+                if (actor instanceof Player) {
+                    this.cx.fillStyle = "rgba(255, 0, 0, " + (1 - actor.actionFrame / 20) + ")";
+                    this.cx.fillRect(0, scale, this.canvas.width, scale * 9);
+                }
+                var dx = Math.floor(Math.random() * intensity) - ((intensity - 1) / 2);
+                var dy = Math.floor(Math.random() * intensity) - ((intensity - 1) / 2);
+                this.cx.translate(dx, dy);
+            }
+        };
         this.drawHUD = () => {
             var view = this.viewport;
             var xStart = Math.floor(view.left - 4);
@@ -105,17 +116,31 @@ class CanvasDisplay {
                         this.cx.fillRect(scale * 2.25 + 2 * i, 7, 2, 2);
                     }
                 }
-                if (player.status === "stagger" && player.actionFrame < 20) {
-                    this.cx.fillStyle = "rgba(255, 0, 0, " + (1 - player.actionFrame / 20) + ")";
-                    this.cx.fillRect(0, scale, this.canvas.width, scale * 9);
-                    var dx = Math.floor(Math.random() * 5) - 2;
-                    var dy = Math.floor(Math.random() * 5) - 2;
-                    this.cx.translate(dx, dy);
+            }
+            let shakeBuffer = 0;
+            this.level.actors.forEach(actor => {
+                if (actor instanceof Player) {
+                    let intensity;
+                    if (actor instanceof Player) {
+                        intensity = 5;
+                    }
+                    else {
+                        intensity = 3;
+                    }
+                    if ((actor.status === "stagger" || actor.status === "die") && actor.actionFrame < 20) {
+                        this.shakeScreeen(actor, intensity);
+                    }
+                    else {
+                        shakeBuffer++;
+                    }
                 }
                 else {
-                    this.cx.restore();
-                    this.cx.save();
+                    shakeBuffer++;
                 }
+            });
+            if (shakeBuffer === this.level.actors.size) {
+                this.cx.restore();
+                this.cx.save();
             }
             for (let x = xStart; x < xEnd; x++) {
                 for (let y = yStart; y < yEnd; y++) {
@@ -615,8 +640,15 @@ class CanvasDisplay {
                             }
                         }
                     }
-                    else if (actor.status === "stagger") {
+                    else if (actor.status === "stagger" || actor.status === "die") {
                         spriteX = 4;
+                        if (actor.actionFrame < 12) {
+                            var intensity = 3;
+                            var dx = Math.floor(Math.random() * intensity) - ((intensity - 1) / 2);
+                            var dy = Math.floor(Math.random() * intensity) - ((intensity - 1) / 2);
+                            posX += dx;
+                            posY += dy;
+                        }
                     }
                     this.cx.save();
                     if (!actor.direction) {

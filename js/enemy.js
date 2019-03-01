@@ -114,14 +114,17 @@ class Enemy extends Actor {
             this.pos.x = Math.round(this.pos.x * 100) / 100;
             this.pos.y = Math.round(this.pos.y * 100) / 100;
             this.actionFrame++;
-            if (this.actionFrame === 20) {
+            if (this.actionFrame === 32) {
                 this.speed = new Vector2D(0, 0);
                 this.status = null;
                 this.action = null;
             }
         };
         this.die = (step, level) => {
-            level.actors.delete(this.name.toLowerCase());
+            if (this.actionFrame > 20) {
+                level.actors.delete(this.name.toLowerCase());
+            }
+            this.actionFrame++;
         };
         this.act = (step, level, keys) => {
             this.controls = [
@@ -158,7 +161,11 @@ class Enemy extends Actor {
             else if (this.status === "stagger") {
                 this.knockback(step, level);
             }
-            if (this.health <= 0) {
+            if (this.status === "die" || this.health <= 0) {
+                if (this.status !== "die") {
+                    this.actionFrame = 0;
+                }
+                this.status = "die";
                 this.die(step, level);
             }
             this.input = null;
