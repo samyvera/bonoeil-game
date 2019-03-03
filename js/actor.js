@@ -59,11 +59,11 @@ class Hitbox extends Actor {
             }
         };
         this.act = (step, level, keys) => {
-            this.activeFrame--;
             this.updatePos(step, level);
             if (this.activeFrame <= 0) {
                 level.actors.delete(this.name.toLowerCase());
             }
+            this.activeFrame--;
         };
         this.activeFrame = activeFrame;
         this.actor = actor;

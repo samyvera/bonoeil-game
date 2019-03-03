@@ -1,5 +1,7 @@
 class Level {
 
+	public frame: number = 0;
+
 	public size: Vector2D;
 	public layer0 = new Map<string, Bloc>();
 	public layer1 = new Map<string, Bloc>();
@@ -8,6 +10,7 @@ class Level {
 	public tileset: string = "img/textures/grass.png";
 
 	public actors = new Map<string, Actor>();
+	public vfx = new Map<string, Vfx>();
 
 	public messageBox1: string = "";
 	public messageBox1Actor: string = "";
@@ -64,10 +67,10 @@ class Level {
 		while (step > 0) {
 			var thisStep: number = Math.min(step, 0.5);
 			this.act();
-			this.actors.forEach((actor: Actor) => {
-				actor.act(thisStep, this, keys);
-			});
+			this.actors.forEach((actor: Actor) => { actor.act(thisStep, this, keys); });
+			this.vfx.forEach((vfx: Vfx) => { vfx.act(thisStep, this, keys) });
 			step -= thisStep;
+			this.frame++;
 		}
 	}
 
@@ -130,6 +133,26 @@ class Level {
 			let otherYEnd: number = other.pos.y + other.size.y;
 
 			if (other !== actor && !(otherXStart > xEnd || otherXEnd < xStart || otherYStart > yEnd || otherYEnd < yStart)) {
+				result = other;
+			}
+		});
+		return result;
+	}
+
+	public filterActorAt = (actor: Actor, filter: string): Actor => {
+		let xStart: number = actor.pos.x;
+		let xEnd: number = actor.pos.x + actor.size.x;
+		let yStart: number = actor.pos.y;
+		let yEnd: number = actor.pos.y + actor.size.y;
+
+		var result: Actor = null;
+		this.actors.forEach((other: Actor) => {
+			let otherXStart: number = other.pos.x;
+			let otherXEnd: number = other.pos.x + other.size.x;
+			let otherYStart: number = other.pos.y;
+			let otherYEnd: number = other.pos.y + other.size.y;
+
+			if ("img/actors/" + filter + ".png" === other.sprites && other !== actor && !(otherXStart > xEnd || otherXEnd < xStart || otherYStart > yEnd || otherYEnd < yStart)) {
 				result = other;
 			}
 		});

@@ -31,6 +31,7 @@ class CanvasDisplay {
 		this.drawBackground();
 		this.drawLayer0();
 		this.drawActors();
+		this.drawVfx();
 		this.drawLayer1();
 		this.drawFront();
 		this.drawLayer2();
@@ -457,6 +458,28 @@ class CanvasDisplay {
 					posX, posY - scale * 2, scale, scale);
 			}
 		});
+	}
+
+	public drawVfx = (): void => {
+		this.level.vfx.forEach((vfx: Vfx) => {
+			var width: number = vfx.size.x * scale;
+			var height: number = vfx.size.y * scale;
+			var posX: number = (vfx.pos.x - this.viewport.left) * scale;
+			var posY: number = (vfx.pos.y - this.viewport.top) * scale;
+			var spriteX: number = 0;
+			var spriteY: number = 0;
+			var sprites: HTMLImageElement = document.createElement("img");
+			sprites.src = "img/vfx/" + vfx.type + ".png";
+
+			if (vfx.type === "vfx1") {
+				spriteX = Math.floor(4 - vfx.activeFrame / 4);
+			}
+
+			this.cx.drawImage(sprites,
+				spriteX * width, spriteY * height, width, height,
+				posX, posY, width, height);
+		});
+
 	}
 
 	public drawActors = (): void => {

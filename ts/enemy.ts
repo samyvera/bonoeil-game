@@ -156,10 +156,14 @@ class Enemy extends Actor {
 
         var actor = level.actorAt(this);
 
-        if (this.status === null && actor && actor instanceof Hitbox && actor.target === "enemy") {
+        if (actor && actor instanceof Hitbox && actor.target === "enemy") {
             this.status = "stagger";
             this.actionFrame = 0;
             this.health--;
+            if (actor.actor instanceof Player) {
+			    level.vfx.set(("vfx1" + level.frame).toLowerCase(),
+                    new Vfx("vfx1" + level.frame, this.pos.plus(new Vector2D(this.size.x/2 - 1, this.size.y/2 -1)), new Vector2D(2, 2), this.direction, "vfx1", 16));
+            }
         }
 
         if (this.status === null) {

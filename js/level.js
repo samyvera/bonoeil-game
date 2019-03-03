@@ -1,10 +1,12 @@
 class Level {
     constructor(plan, actors) {
+        this.frame = 0;
         this.layer0 = new Map();
         this.layer1 = new Map();
         this.layer2 = new Map();
         this.tileset = "img/textures/grass.png";
         this.actors = new Map();
+        this.vfx = new Map();
         this.messageBox1 = "";
         this.messageBox1Actor = "";
         this.messageTime1 = 0;
@@ -15,10 +17,10 @@ class Level {
             while (step > 0) {
                 var thisStep = Math.min(step, 0.5);
                 this.act();
-                this.actors.forEach((actor) => {
-                    actor.act(thisStep, this, keys);
-                });
+                this.actors.forEach((actor) => { actor.act(thisStep, this, keys); });
+                this.vfx.forEach((vfx) => { vfx.act(thisStep, this, keys); });
                 step -= thisStep;
+                this.frame++;
             }
         };
         this.act = () => {
@@ -82,6 +84,23 @@ class Level {
                 let otherYStart = other.pos.y;
                 let otherYEnd = other.pos.y + other.size.y;
                 if (other !== actor && !(otherXStart > xEnd || otherXEnd < xStart || otherYStart > yEnd || otherYEnd < yStart)) {
+                    result = other;
+                }
+            });
+            return result;
+        };
+        this.filterActorAt = (actor, filter) => {
+            let xStart = actor.pos.x;
+            let xEnd = actor.pos.x + actor.size.x;
+            let yStart = actor.pos.y;
+            let yEnd = actor.pos.y + actor.size.y;
+            var result = null;
+            this.actors.forEach((other) => {
+                let otherXStart = other.pos.x;
+                let otherXEnd = other.pos.x + other.size.x;
+                let otherYStart = other.pos.y;
+                let otherYEnd = other.pos.y + other.size.y;
+                if ("img/actors/" + filter + ".png" === other.sprites && other !== actor && !(otherXStart > xEnd || otherXEnd < xStart || otherYStart > yEnd || otherYEnd < yStart)) {
                     result = other;
                 }
             });

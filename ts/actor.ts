@@ -91,13 +91,12 @@ class Hitbox extends Actor {
     }
 
     public act = (step: number, level: Level, keys:Map<string, boolean>): void => {
-        this.activeFrame--;
-
         this.updatePos(step, level);
 
         if (this.activeFrame <= 0) {
 			level.actors.delete(this.name.toLowerCase());
         }
+        this.activeFrame--;
     }
 }
 
