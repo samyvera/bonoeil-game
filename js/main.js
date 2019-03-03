@@ -3,8 +3,8 @@ var arrowCodes = new Map([
     [38, "up"],
     [39, "right"],
     [40, "down"],
-    [87, "a"],
-    [88, "b"]
+    [81, "a"],
+    [83, "b"]
 ]);
 var trackKeys = (codes) => {
     var pressed = new Map();
