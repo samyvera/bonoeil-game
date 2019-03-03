@@ -132,7 +132,7 @@ class Enemy extends Actor {
                 (this.frame % 64 === 0)
             ];
             var actor = level.actorAt(this);
-            if (actor && actor instanceof Hitbox && actor.target === "enemy") {
+            if ((this.status === null || this.status === "stagger" && this.actionFrame > 8) && actor && actor instanceof Hitbox && actor.target === "enemy") {
                 this.status = "stagger";
                 this.actionFrame = 0;
                 this.health--;
