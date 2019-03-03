@@ -471,13 +471,28 @@ class CanvasDisplay {
 			var sprites: HTMLImageElement = document.createElement("img");
 			sprites.src = "img/vfx/" + vfx.type + ".png";
 
+			this.cx.save();
+
 			if (vfx.type === "vfx1") {
 				spriteX = Math.floor(4 - vfx.activeFrame / 4);
 			}
-
+			else if (vfx.type === "vfx2") {
+				spriteX = Math.floor(4 - vfx.activeFrame / 4);
+				if (vfx.direction) { this.flipHorizontally(this.cx, posX + width / 2); }
+			}
+			else if (vfx.type === "vfx3") {
+				spriteX = Math.floor(4 - vfx.activeFrame / 4);
+			}
+			else if (vfx.type === "vfx4") {
+				spriteX = Math.floor(4 - vfx.activeFrame / 4);
+				if (vfx.direction) { this.flipHorizontally(this.cx, posX + width); }
+			}
+	
 			this.cx.drawImage(sprites,
 				spriteX * width, spriteY * height, width, height,
 				posX, posY, width, height);
+	
+			this.cx.restore();
 		});
 
 	}

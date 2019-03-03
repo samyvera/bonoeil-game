@@ -160,10 +160,29 @@ class Enemy extends Actor {
             this.status = "stagger";
             this.actionFrame = 0;
             this.health--;
-            if (actor.actor instanceof Player) {
-			    level.vfx.set(("vfx1" + level.frame).toLowerCase(),
-                    new Vfx("vfx1" + level.frame, this.pos.plus(new Vector2D(this.size.x/2 - 1, this.size.y/2 -1)), new Vector2D(2, 2), this.direction, "vfx1", 16));
+
+            if (actor.actor instanceof Player && actor.actor.action === "jabAttack3") {
+                let posX: number;
+                if (this.direction) { posX = -this.size.x -2; }
+                else { posX = 0; }
+			    level.vfx.set(("vfx2" + level.frame + this.name).toLowerCase(),
+                    new Vfx(("vfx2" + level.frame + this.name).toLowerCase(), this.pos.plus(new Vector2D(posX, -2)), new Vector2D(4, 4), this.direction, "vfx2", 16));
             }
+            if (actor.actor instanceof Player) {
+			    level.vfx.set(("vfx1" + level.frame + this.name).toLowerCase(),
+                    new Vfx(("vfx1" + level.frame + this.name).toLowerCase(), this.pos.plus(new Vector2D(this.size.x/2 - 1, this.size.y/2 -1)), new Vector2D(2, 2), this.direction, "vfx1", 16));
+
+                
+                let posX: number;
+                if (this.direction) { posX = -this.size.x -2; }
+                else { posX = 0; }
+			    level.vfx.set(("vfx4" + level.frame + this.name).toLowerCase(),
+                new Vfx(("vfx4" + level.frame + this.name).toLowerCase(), this.pos.plus(new Vector2D(posX, -2)), new Vector2D(2, 4), this.direction, "vfx4", 16));
+            }
+        }
+        else if (this.status === "die" && this.actionFrame === 1) {
+			level.vfx.set(("vfx3" + level.frame + this.name).toLowerCase(),
+                new Vfx(("vfx3" + level.frame + this.name).toLowerCase(), this.pos.plus(new Vector2D(this.size.x/2 - 2, this.size.y/2 - 2)), new Vector2D(4, 4), this.direction, "vfx3", 16));
         }
 
         if (this.status === null) {
